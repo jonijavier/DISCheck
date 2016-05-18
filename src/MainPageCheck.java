@@ -1,12 +1,14 @@
 
+// Internal Class
+import dataOptimization.ImageCheck;
+import dataOptimization.SetFileDetails;
+import dataOptimization.SetInternalBrowser;
+
 import org.junit.*;
 import static org.junit.Assert.*;
 
 import java.util.concurrent.TimeUnit;
 import org.openqa.selenium.*;
-
-import testForOptimizedImages.imageCount;
-import testForOptimizedImages.internalSetBrowser;
 
 import java.io.*;
 import java.text.DateFormat;
@@ -64,6 +66,8 @@ public class MainPageCheck
 	// set Chrome Driver Location
 	private String setChromeDriverLocation = "C:/Users/User1/Downloads/chromedriver_win32/chromedriver.exe";
 
+	private static String dbName = "LancomeFr";
+
 	/**
 	 * IMPORTANT NOTE: Please change variables above this
 	 */
@@ -71,23 +75,19 @@ public class MainPageCheck
 	public static WebDriver driver;
 	private String baseUrl;
 	private String fileName;
-	private StringBuffer verificationErrors = new StringBuffer();
-	private int count = 0;
-	private int skipListCount = 0;
-	private int checkedNo = 0;
-	private int skippedNo = 0;
-	private int urlNo = 0;
-	private boolean checkSkipped = false;
-	private boolean dupeCheck = false;
-	private boolean uniqueCheck = false;
 	public static FileWriter file;
+
+	private static final String DB_DRIVER = "com.mysql.jdbc.Driver";
+	private static final String DB_CONNECTION = "jdbc:mysql://localhost:3306/" + dbName;
+	private static final String DB_USER = "root";
+	private static final String DB_PASSWORD = "";
 
 	@Before
 	public void setUp() throws Exception
 	{
 		System.out.println("**START TEST**");
 
-		internalSetBrowser browser = new internalSetBrowser(setBrowserString, driver, setChromeDriverLocation,
+		SetInternalBrowser browser = new SetInternalBrowser(setBrowserString, driver, setChromeDriverLocation,
 				staticDeviceName, staticPlatform, staticBrowserVersion, staticScreenResolution);
 
 		// Start the browser and go to URL
@@ -106,205 +106,10 @@ public class MainPageCheck
 		// Open Browser and Navigate to Page
 		driver.get(baseUrl);
 
-		// Create the file name by appending the first 4 chars of the url with the date and time
-		DateFormat dateFormat = new SimpleDateFormat("yyMMdd_HHmmss");
-		Date date = new Date();
-		fileName = baseUrl.substring(11, 15) + "_" + dateFormat.format(date);
-
 		// Create the file in directory with first 4 chars of website url with date and time
-		File tempFile = new File(fileLocation + fileName + ".xml");
-
-		// Check if file exists
-		if (tempFile.exists())
-		{
-			// do nothing
-		}
-		else
-		{
-			file = new FileWriter(tempFile);
-		}
-
-		// Create XML structure
-		Element company = new Element("company");
-		Document doc = new Document(company);
-		doc.setRootElement(company);
-
-		// Creates an XML outputter, the file to be saved into
-		XMLOutputter xmlOutput = new XMLOutputter();
-
-		// Start initial image count on baseUrl page
-		imageCount ic = new imageCount(count, driver, doc, xmlOutput, file);
-
-		// Find all elements with tag name = a
-		List<WebElement> urlList = driver.findElements(By.tagName("a"));
-
-		// Array to store the elements with href
-		List<String> realUrlList = new ArrayList<String>();
-		try
-		{
-			// loops to segregate the non-url from the urls
-			for (WebElement aHrefElement : urlList)
-			{
-				// if href is null, then there is no url available
-				if (aHrefElement.getAttribute("href") == null)
-				{
-					// do nothing if there is no url available
-				}
-				else
-				{
-					// add url to array
-					realUrlList.add(aHrefElement.getAttribute("href").toString());
-					urlNo++;
-				}
-			}
-		}
-		catch (Exception e)
-		{
-			System.out.println("JTJ//ERROR// - Exception: ");
-			e.printStackTrace();
-		}
-
-		// Print the total no. of all urls
-		System.out.println("Total no. of urls are " + urlNo);
-		System.out.println("Starting test on specific pages...");
-
-		// Array to store the unique urls
-		List<String> uniqueUrlList = new ArrayList<String>();
-		uniqueUrlList.add(yourBaseUrl);
-
-		// Cycle through all the pages
-		for (String temp : realUrlList)
-		{
-			// internal count of all the images
-			count = imageCount.getInternalCountClass();
-			checkSkipped = false;
-
-			try
-			{
-				// array of all the exclusions from the url checks based on a string found in the url
-				List<String> skipList = new ArrayList<String>(Arrays.asList(exclusionArrayList));
-
-				// count for all the urls skipped, including duplicate urls
-				skipListCount = 0;
-
-				// runs through all the exclusions skiplist
-				for (String skipWord : skipList)
-				{
-					if (temp.contains(skipList.get(skipListCount)) == true)
-					{
-						System.out.println("Skipping url: " + temp);
-						checkSkipped = true;
-					}
-					else if (temp.equals(baseUrl))
-					{
-						System.out.println("Skipping url: " + temp);
-						checkSkipped = true;
-					}
-					else
-					{
-						checkSkipped = false;
-					}
-
-					if (checkSkipped == true)
-					{
-						skippedNo++;
-						break;
-					}
-					// this count is for the array
-					skipListCount++;
-				}
-
-				if (checkSkipped == false)
-				{
-					// Console print
-					System.out.println("Checking url: " + temp);
-
-					try
-					{
-						// Runs through all the unique URLs and checks against all.
-						for (String urlStored : uniqueUrlList)
-						{
-							// if the URL is equal to a stored URL, it stops the checking
-							if (temp.equals(urlStored.toString()))
-							{
-								System.out.println("Duplicate url, Skipping this url: " + temp);
-								skippedNo++;
-								dupeCheck = true;
-								break;
-							}
-							else
-							{
-								// do nothing
-							}
-						}
-
-						if (dupeCheck == true)
-						{
-							// do nothing
-							uniqueCheck = false;
-							dupeCheck = false;
-						}
-						else
-						{
-							uniqueUrlList.add(temp);
-							uniqueCheck = true;
-						}
-					}
-					catch (Exception e)
-					{
-						System.out.println("JTJ//ERROR// - Exception: ");
-						e.printStackTrace();
-					}
-				}
-				else
-				{
-					checkSkipped = false;
-				}
-
-				// If the Url is unique and not a duplicate, go through image count and check
-				if (uniqueCheck == true)
-				{
-					driver.navigate().to(temp);
-					driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
-
-					System.out.println("Navigating to: " + temp);
-					// Image counting and checking
-					imageCount ic2 = new imageCount(count, driver, doc, xmlOutput, file);
-
-					checkedNo++;
-					uniqueCheck = false;
-				}
-				else
-				{
-					// do nothing
-					uniqueCheck = false;
-				}
-
-			}
-			catch (Exception e)
-			{
-				System.out.println("JTJ//ERROR// - Exception caught!");
-				System.out.println("Skipping url: " + temp);
-				e.printStackTrace();
-				System.out.println(e.getMessage());
-			}
-		}
-
-		try
-		{
-			// put it into the XML file
-			xmlOutput.setFormat(Format.getPrettyFormat());
-			xmlOutput.output(doc, file);
-		}
-		catch (Exception e)
-		{
-			// Show exception
-			System.out.println("JTJ//ERROR// - Exception!");
-			e.printStackTrace();
-		}
-
-		System.out.println("Checked Urls: " + checkedNo);
-		System.out.println("Skipped Urls: " + skippedNo);
+		SetFileDetails fileDetails = new SetFileDetails(fileLocation, baseUrl.substring(11, 15), ".xml");
+		File tempFile = new File(fileDetails.getFileName());
+		fileDetails.checkIfFileExists(tempFile);
 
 		System.out.println("**END TEST**");
 
@@ -314,12 +119,12 @@ public class MainPageCheck
 	public void tearDown() throws Exception
 	{
 		driver.quit();
+		
 		String verificationErrorString = verificationErrors.toString();
 		if (!"".equals(verificationErrorString))
 		{
 			fail(verificationErrorString);
 		}
-
 	}
 
 }
