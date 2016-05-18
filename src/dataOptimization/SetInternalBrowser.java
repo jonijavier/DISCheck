@@ -81,6 +81,11 @@ public class SetInternalBrowser
 			setWebDriver(driver);
 		}
 	}
+	
+	public static void quitWebDriver()
+	{
+		thisDriver.quit();
+	}
 
 	public void setWebDriver(WebDriver driver)
 	{
