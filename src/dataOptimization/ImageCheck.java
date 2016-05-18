@@ -1,3 +1,4 @@
+package dataOptimization;
 
 import org.openqa.selenium.*;
 
