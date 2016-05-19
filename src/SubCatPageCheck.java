@@ -141,7 +141,7 @@ public class SubCatPageCheck
 			XMLOutputter xmlOutput = new XMLOutputter();
 
 			// Start initial image count on baseUrl page
-			ImageCheck ic = new ImageCheck(count, driver, doc, xmlOutput, file);
+			//ImageCheck ic = new ImageCheck(count, driver, doc, xmlOutput, file);
 
 			// Find all elements with tag name = a
 			List<WebElement> urlList = driver.findElements(By.tagName("a"));
@@ -241,7 +241,7 @@ public class SubCatPageCheck
 					System.out.println("Navigating to: " + temp);
 					
 					// Image counting and checking
-					ImageCheck ic2 = new ImageCheck(count, driver, doc, xmlOutput, file);
+					//ImageCheck ic2 = new ImageCheck(count, driver, doc, xmlOutput, file);
 
 					checkedNo++;
 					uniqueCheck = false;

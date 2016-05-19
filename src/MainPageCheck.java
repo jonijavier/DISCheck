@@ -4,12 +4,14 @@ import dataOptimization.Database;
 import dataOptimization.ImageCheck;
 import dataOptimization.SetFileDetails;
 import dataOptimization.SetInternalBrowser;
+import dataOptimization.UrlCheck;
 
 import org.junit.*;
 import static org.junit.Assert.*;
 
 import java.util.concurrent.TimeUnit;
 import org.openqa.selenium.*;
+import org.openqa.selenium.remote.UnreachableBrowserException;
 
 import java.io.*;
 import java.text.DateFormat;
@@ -25,32 +27,28 @@ import java.util.List;
 import java.util.Arrays;
 import java.util.Date;
 
+//@SuppressWarnings("unused")
 public class MainPageCheck
 {
 	/**
-	 * INTRODUCTION: This code visits the primary url and checks all the images
-	 * from
-	 * that url. The next step the code does is that it cycles through all
-	 * the unique links on the primary url page.
-	 * 
-	 * It stores these links and cycles through each one, and performs an image
-	 * check on each unique URL.
+	 * INTRODUCTION:
 	 * 
 	 * IMPORTANT NOTE: Please change variables below this
 	 */
 
 	// File Directory
-	private String fileLocation = "C:/Users/User1/Documents/jjavier/";
+	//private String fileLocation = "C:/Users/User1/Documents/jjavier/";
 
 	// Primary URL link. Location of the main home page where all the links will be extracted.
 	private String yourBaseUrl = "http://www.lancome.fr/";
 
 	// All links and string that will not be included in the URLs that the code will cycle through for the image check
-	private String[] exclusionArray = {"javascript", "cookies", "index",
-			"index", "#", ".be", ".dk", "spain", ".gr", ".it", ".lu", ".nl", ".no", ".at", ".pl", ".pt", ".ru", ".fi",
-			".se", ".ch", ".tr", ".co.uk", ".de", ".au", ".cn", ".hk", ".in", ".jp", ".com.tw", "-usa", ".my", ".sg",
-			".co.kr", ".co.th", "youtube", "twitter", "facebook", "store-locator", ".ca", ".br", ".ar", "tel:",
-			"google", "instagram", "SendToFriend", "pinterest", "WishList-Add", "Wishlist-Add", "consignesdetri"};
+	private String[] exclusionArray =
+	{ "javascript", "cookies", "index", "index", "#", ".be", ".dk", "spain", ".gr", ".it", ".lu", ".nl", ".no", ".at",
+			".pl", ".pt", ".ru", ".fi", ".se", ".ch", ".tr", ".co.uk", ".de", ".au", ".cn", ".hk", ".in", ".jp",
+			".com.tw", "-usa", ".my", ".sg", ".co.kr", ".co.th", "youtube", "twitter", "facebook", "store-locator",
+			".ca", ".br", ".ar", "tel:", "google", "instagram", "SendToFriend", "pinterest", "WishList-Add",
+			"Wishlist-Add", "consignesdetri" };
 
 	// Values for Desktop Testing: staticPlatform = Windows 10, Windows 8, Windows 7, Windows XP, OS X [version_no. e.g. 10.11. OS X 10.11] 
 	private String staticPlatform = "Windows 10";
@@ -80,20 +78,20 @@ public class MainPageCheck
 	public static WebDriver driver;
 	public static FileWriter file;
 	public Database db;
+	public SetInternalBrowser browser;
+	public UrlCheck mainUrlCheck;
 
-	private int urlNo = 0;
-	private int skippedNo = 0;
 	private String baseUrl;
-	private String fileName;
-	private boolean checkSkipped = false;
+	//private String fileName;
+	public int count = 0;
 
 	@Before
 	public void setUp() throws Exception
 	{
 		System.out.println("**START TEST**");
 
-		SetInternalBrowser browser = new SetInternalBrowser(setBrowserString, driver, setChromeDriverLocation,
-				staticDeviceName, staticPlatform, staticBrowserVersion, staticScreenResolution);
+		browser = new SetInternalBrowser(setBrowserString, driver, setChromeDriverLocation, staticDeviceName,
+				staticPlatform, staticBrowserVersion, staticScreenResolution);
 
 		// Start the browser and go to URL
 		baseUrl = yourBaseUrl;
@@ -112,83 +110,23 @@ public class MainPageCheck
 		driver.get(baseUrl);
 
 		// Create the file in directory with first 4 chars of website url with date and time
-		SetFileDetails fileDetails = new SetFileDetails(fileLocation, baseUrl.substring(11, 15), ".xml");
-		File tempFile = new File(fileDetails.getFileName());
-		fileDetails.checkIfFileExists(tempFile);
+		//SetFileDetails fileDetails = new SetFileDetails(fileLocation, baseUrl.substring(11, 15), ".xml");
+		//File tempFile = new File(fileDetails.getFileName());
+		//fileDetails.checkIfFileExists(tempFile);
 
 		// Initialize Database
 		db = new Database(dbName, DB_DRIVER, DB_CONNECTION, DB_USER, DB_PASSWORD);
 
-		// Find all elements with tag name = a
+		// Find all elements with tag name = a and store it in a list
 		List<WebElement> urlList = driver.findElements(By.tagName("a"));
-
-		// Store the elements in SQL Database
-		List<String> realUrlList = new ArrayList<String>();
 		try
 		{
-			// loops to segregate the non-url from the urls
-			for (WebElement aHrefElement : urlList)
-			{
-				// if href is null, then there is no url available
-				if (aHrefElement.getAttribute("href") == null)
-				{
-					// do nothing if there is no url available
-					checkSkipped = true;
-				}
-				else if (aHrefElement.getAttribute("href").toString().contains("javascript"))
-				{
-					// do nothing if this url is javascript
-					checkSkipped = true;
-				}
-				else if (aHrefElement.getAttribute("href").toString().equals(baseUrl))
-				{
-					// do nothing if this url is equal to the baseUrl
-					checkSkipped = true;
-				}
-				else if (aHrefElement.getAttribute("href").toString().equals(""))
-				{
-					// do nothing if this url is equal to the baseUrl
-					checkSkipped = true;
-				}
-				else
-				{
-					// runs through all the exclusions skiplist
-					for (int i = 0; i < exclusionArray.length; i++)
-					{
-						// reset checkSkipped value
-						checkSkipped = false;
-
-						if (aHrefElement.getAttribute("href").toString().contains(exclusionArray[i]) == true)
-						{
-							System.out.println("SkipWord: " + exclusionArray[i]);
-							System.out.println("Skipping url: " + aHrefElement.getAttribute("href").toString());
-							checkSkipped = true;
-							break;
-						}
-						else
-						{
-							checkSkipped = false;
-						}	
-					}
-				}
-				
-				if (checkSkipped == true)
-				{
-					// increment skippedNo and break for-loop
-					skippedNo++;
-				}
-				else
-				{
-					// add url to array
-					Database.insertRecordIntoTable("urlrepository", "URL",
-							aHrefElement.getAttribute("href").toString());
-				}
-
-				// increment for final URL count
-				urlNo++;
-				
-				driver.manage().timeouts().implicitlyWait(1, TimeUnit.MILLISECONDS);
-			}
+			mainUrlCheck = new UrlCheck(urlList, exclusionArray, driver, baseUrl, db);
+		}
+		catch (UnreachableBrowserException ube)
+		{
+			System.out.println("UnreachableBrowserException found: MainPageCheck, MainCode - Exception: ");
+			ube.printStackTrace();
 		}
 		catch (Exception e)
 		{
@@ -196,14 +134,43 @@ public class MainPageCheck
 			e.printStackTrace();
 		}
 
-		System.out.println("**END TEST**");
+		// Give a summary of URLs checked in the main page
+		int urlsStored = mainUrlCheck.getUrlNo() - mainUrlCheck.getSkippedNo();
+		System.out.println("Total No. of URLS: " + mainUrlCheck.getUrlNo());
+		System.out.println("Total No. of Skipped URLs: " + mainUrlCheck.getSkippedNo());
+		System.out.println("Total No. of Stored URLs: " + urlsStored);
+		System.out.println();
+		System.out.println("Starting Image Check for " + baseUrl);
+		
+		// Check all the images and store them in SQL in the main page
+		ImageCheck ic = new ImageCheck(count, driver, db);
+		
+		// Start checking all Unique URLs and store images
+		System.out.println("Starting Image Check for each Unique URL");
 
+		db.selectUniqueUrlAndGetLinks("urlrepository", "URL", db, exclusionArray);
+		db.selectUrlAndRunImageCheck("urlrepository", "URL", db);
+
+		System.out.println("**END TEST**");
 	}
 
 	@After
 	public void tearDown() throws Exception
 	{
-		driver = SetInternalBrowser.getWebDriver();
-		driver.quit();
+		try
+		{
+			driver = browser.getWebDriver();
+			driver.quit();
+		}
+		catch (UnreachableBrowserException ube)
+		{
+			System.out.println("UnreachableBrowserException found: MainPageCheck, tearDown - Exception: ");
+			ube.printStackTrace();
+		}
+		catch (Exception e)
+		{
+			System.out.println("Exception found: MainPageCheck, tearDown - Exception: ");
+			e.printStackTrace();
+		}
 	}
 }

@@ -92,7 +92,7 @@ public class SetInternalBrowser
 		thisDriver = driver;
 	}
 
-	public static WebDriver getWebDriver()
+	public WebDriver getWebDriver()
 	{
 		return thisDriver;
 	}

@@ -31,7 +31,15 @@ public class ImageCheck
 	private int startIndex = 0;
 	private int endIndex = 0;
 
-	public ImageCheck(int count, WebDriver driver, Document doc, XMLOutputter xmlOutput, FileWriter file)
+	// For SQL Entry
+	private String columnNames = "pageurl, imagename, optimizationcheck, width, height, weight, weightstatus, imageurl";
+	private String currentPageUrl = "";
+	private String currentImageWidth = "";
+	private String currentImageHeight = "";
+	private String weightStatus = "no weight status";
+	private String currentImageUrl = "";
+
+	public ImageCheck(int count, WebDriver driver, Database db)
 	{
 		int internalCount = count;
 		try
@@ -79,6 +87,23 @@ public class ImageCheck
 					{
 						if (imgElement.getAttribute("src").contains("?sw="))
 						{
+							// Set Strings and Integers
+							currentPageUrl = driver.getCurrentUrl().toString();
+							currentImageWidth = imgElement.getAttribute("width");
+							currentImageHeight = imgElement.getAttribute("height");
+							weightStatus = "no weight status";
+							currentImageUrl = imgElement.getAttribute("src");
+
+							// If weight is greater than 150kb then tag as Image Weight Fail
+							if (imgSize > 150000)
+							{
+								weightStatus = "Image Weight Fail";
+							}
+							else
+							{
+								weightStatus = "Image Weight Pass";
+							}
+
 							// get Image Name
 							fullSrc = imgElement.getAttribute("src");
 							startIndex = fullSrc.lastIndexOf("/") + 1;
@@ -95,128 +120,126 @@ public class ImageCheck
 							System.out.println(internalCount + "-bytes: " + Integer.toString(imgSize));
 							System.out.println(internalCount + "- imageName: " + imgName);
 
-							// Insert into XML
-							Element image = new Element("image");
-							image.setAttribute(new Attribute("id", "" + internalCount));
-							image.setAttribute(new Attribute("url", driver.getCurrentUrl()));
-							image.addContent(new Element("status").setText("optimized"));
-							image.addContent(new Element("name").setText(imgName));
-							image.addContent(new Element("SRC").setText(imgElement.getAttribute("src")));
-							image.addContent(new Element("width").setText(imgElement.getAttribute("width")));
-							image.addContent(new Element("height").setText(imgElement.getAttribute("height")));
-							image.addContent(new Element("weight").setText(Integer.toString(imgSize)));
+							// SQL Insert
+							String stringData = "'" + currentPageUrl + "' , '" + imgName + "' , 'optimized', "
+									+ currentImageWidth + ", " + currentImageHeight + ", " + imgSize + ", '"
+									+ weightStatus + "', '" + currentImageUrl + "'";
+							String exclusionCriteria = "imageurl = '" + currentImageUrl + "' AND imagename = '"
+									+ imgName + "'";
+							db.insertMultipleRecordsIntoTable("imagerepository", columnNames, stringData,
+									exclusionCriteria);
 
-							doc.getRootElement().addContent(image);
 						}
 						else
 						{
+							// Set Strings and Integers
+							currentPageUrl = driver.getCurrentUrl().toString();
+							currentImageWidth = imgElement.getAttribute("width");
+							currentImageHeight = imgElement.getAttribute("height");
+							weightStatus = "no weight status";
+							currentImageUrl = imgElement.getAttribute("src");
+
+							// If weight is greater than 150kb then tag as Image Weight Fail
+							if (imgSize > 150000)
+							{
+								weightStatus = "Image Weight Fail";
+							}
+							else
+							{
+								weightStatus = "Image Weight Pass";
+							}
+
 							// get Image Name
 							fullSrc = imgElement.getAttribute("src");
 							startIndex = fullSrc.lastIndexOf("/") + 1;
-							
+
 							if (fullSrc.contains(".jpg"))
 							{
 								endIndex = fullSrc.lastIndexOf(".jpg");
-								imgName = fullSrc.substring(startIndex, endIndex)+".jpg";
-								
+								imgName = fullSrc.substring(startIndex, endIndex) + ".jpg";
+
 								// Console print
 								System.out.println(internalCount + "-SRC: " + imgElement.getAttribute("src"));
 								System.out.println(internalCount + "> This image is not optimized.");
-								System.out.println(
-										internalCount + "-DIS: " + imgElement.getAttribute("data-is-responsive-loaded"));
+								System.out.println(internalCount + "-DIS: "
+										+ imgElement.getAttribute("data-is-responsive-loaded"));
 								System.out.println(internalCount + "-bytes: " + Integer.toString(imgSize));
 								System.out.println(internalCount + "- imageName: " + imgName);
-								
-								// Insert into XML
-								Element image = new Element("image");
-								image.setAttribute(new Attribute("id", "" + internalCount));
-								image.setAttribute(new Attribute("url", driver.getCurrentUrl()));
-								image.addContent(new Element("status").setText("not optimized"));
-								image.addContent(new Element("name").setText(imgName));
-								image.addContent(new Element("SRC").setText(imgElement.getAttribute("src")));
-								image.addContent(new Element("width").setText(imgElement.getAttribute("width")));
-								image.addContent(new Element("height").setText(imgElement.getAttribute("height")));
-								image.addContent(new Element("weight").setText(Integer.toString(imgSize)));
 
-								doc.getRootElement().addContent(image);
+								// SQL Insert
+								String stringData = "'" + currentPageUrl + "' , '" + imgName + "' , 'not optimized', "
+										+ currentImageWidth + ", " + currentImageHeight + ", " + imgSize + ", '"
+										+ weightStatus + "', '" + currentImageUrl + "'";
+								String exclusionCriteria = "imageurl = '" + currentImageUrl + "' AND imagename = '"
+										+ imgName + "'";
+								db.insertMultipleRecordsIntoTable("imagerepository", columnNames, stringData,
+										exclusionCriteria);
 							}
 							else if (fullSrc.contains(".png"))
 							{
 								endIndex = fullSrc.lastIndexOf(".png");
-								imgName = fullSrc.substring(startIndex, endIndex)+".png";
-								
+								imgName = fullSrc.substring(startIndex, endIndex) + ".png";
+
 								// Console print
 								System.out.println(internalCount + "-SRC: " + imgElement.getAttribute("src"));
 								System.out.println(internalCount + "> This image is not optimized.");
-								System.out.println(
-										internalCount + "-DIS: " + imgElement.getAttribute("data-is-responsive-loaded"));
+								System.out.println(internalCount + "-DIS: "
+										+ imgElement.getAttribute("data-is-responsive-loaded"));
 								System.out.println(internalCount + "-bytes: " + Integer.toString(imgSize));
 								System.out.println(internalCount + "- imageName: " + imgName);
-								
-								// Insert into XML
-								Element image = new Element("image");
-								image.setAttribute(new Attribute("id", "" + internalCount));
-								image.setAttribute(new Attribute("url", driver.getCurrentUrl()));
-								image.addContent(new Element("status").setText("not optimized"));
-								image.addContent(new Element("name").setText(imgName));
-								image.addContent(new Element("SRC").setText(imgElement.getAttribute("src")));
-								image.addContent(new Element("width").setText(imgElement.getAttribute("width")));
-								image.addContent(new Element("height").setText(imgElement.getAttribute("height")));
-								image.addContent(new Element("weight").setText(Integer.toString(imgSize)));
 
-								doc.getRootElement().addContent(image);
+								// SQL Insert
+								String stringData = "'" + currentPageUrl + "' , '" + imgName + "' , 'not optimized', "
+										+ currentImageWidth + ", " + currentImageHeight + ", " + imgSize + ", '"
+										+ weightStatus + "', '" + currentImageUrl + "'";
+								String exclusionCriteria = "imageurl = '" + currentImageUrl + "' AND imagename = '"
+										+ imgName + "'";
+								db.insertMultipleRecordsIntoTable("imagerepository", columnNames, stringData,
+										exclusionCriteria);
 							}
 							else if (fullSrc.contains(".gif"))
 							{
 								endIndex = fullSrc.lastIndexOf(".gif");
-								imgName = fullSrc.substring(startIndex, endIndex)+".gif";
-								
+								imgName = fullSrc.substring(startIndex, endIndex) + ".gif";
+
 								// Console print
 								System.out.println(internalCount + "-SRC: " + imgElement.getAttribute("src"));
 								System.out.println(internalCount + "> This image is not optimized.");
-								System.out.println(
-										internalCount + "-DIS: " + imgElement.getAttribute("data-is-responsive-loaded"));
+								System.out.println(internalCount + "-DIS: "
+										+ imgElement.getAttribute("data-is-responsive-loaded"));
 								System.out.println(internalCount + "-bytes: " + Integer.toString(imgSize));
 								System.out.println(internalCount + "- imageName: " + imgName);
-								
-								// Insert into XML
-								Element image = new Element("image");
-								image.setAttribute(new Attribute("id", "" + internalCount));
-								image.setAttribute(new Attribute("url", driver.getCurrentUrl()));
-								image.addContent(new Element("status").setText("not optimized"));
-								image.addContent(new Element("name").setText(imgName));
-								image.addContent(new Element("SRC").setText(imgElement.getAttribute("src")));
-								image.addContent(new Element("width").setText(imgElement.getAttribute("width")));
-								image.addContent(new Element("height").setText(imgElement.getAttribute("height")));
-								image.addContent(new Element("weight").setText(Integer.toString(imgSize)));
 
-								doc.getRootElement().addContent(image);
+								// SQL Insert
+								String stringData = "'" + currentPageUrl + "' , '" + imgName + "' , 'not optimized', "
+										+ currentImageWidth + ", " + currentImageHeight + ", " + imgSize + ", '"
+										+ weightStatus + "', '" + currentImageUrl + "'";
+								String exclusionCriteria = "imageurl = '" + currentImageUrl + "' AND imagename = '"
+										+ imgName + "'";
+								db.insertMultipleRecordsIntoTable("imagerepository", columnNames, stringData,
+										exclusionCriteria);
 							}
 							else
 							{
 								// do nothing
 								imgName = "No Image Name";
-								
+
 								// Console print
 								System.out.println(internalCount + "-SRC: " + imgElement.getAttribute("src"));
 								System.out.println(internalCount + "> This image is not optimized.");
-								System.out.println(
-										internalCount + "-DIS: " + imgElement.getAttribute("data-is-responsive-loaded"));
+								System.out.println(internalCount + "-DIS: "
+										+ imgElement.getAttribute("data-is-responsive-loaded"));
 								System.out.println(internalCount + "-bytes: " + Integer.toString(imgSize));
 								System.out.println(internalCount + "- imageName: " + imgName);
-								
-								// Insert into XML
-								Element image = new Element("image");
-								image.setAttribute(new Attribute("id", "" + internalCount));
-								image.setAttribute(new Attribute("url", driver.getCurrentUrl()));
-								image.addContent(new Element("status").setText("not optimized"));
-								image.addContent(new Element("name").setText(imgName));
-								image.addContent(new Element("SRC").setText(imgElement.getAttribute("src")));
-								image.addContent(new Element("width").setText(imgElement.getAttribute("width")));
-								image.addContent(new Element("height").setText(imgElement.getAttribute("height")));
-								image.addContent(new Element("weight").setText(Integer.toString(imgSize)));
 
-								doc.getRootElement().addContent(image);
+								// SQL Insert
+								String stringData = "'" + currentPageUrl + "' , '" + imgName + "' , 'not optimized', "
+										+ currentImageWidth + ", " + currentImageHeight + ", " + imgSize + ", '"
+										+ weightStatus + "', '" + currentImageUrl + "'";
+								String exclusionCriteria = "imageurl = '" + currentImageUrl + "' AND imagename = '"
+										+ imgName + "'";
+								db.insertMultipleRecordsIntoTable("imagerepository", columnNames, stringData,
+										exclusionCriteria);
 							}
 						}
 					}
@@ -231,6 +254,23 @@ public class ImageCheck
 				{
 					try
 					{
+						// Set Strings and Integers
+						currentPageUrl = driver.getCurrentUrl().toString();
+						currentImageWidth = imgElement.getAttribute("width");
+						currentImageHeight = imgElement.getAttribute("height");
+						weightStatus = "no weight status";
+						currentImageUrl = imgElement.getAttribute("src");
+
+						// If weight is greater than 150kb then tag as Image Weight Fail
+						if (imgSize > 150000)
+						{
+							weightStatus = "Image Weight Fail";
+						}
+						else
+						{
+							weightStatus = "Image Weight Pass";
+						}
+
 						// get Image Name
 						fullSrc = imgElement.getAttribute("src");
 						startIndex = fullSrc.lastIndexOf("/") + 1;
@@ -242,23 +282,19 @@ public class ImageCheck
 						System.out.println(internalCount + "> This image is optimized.");
 						System.out.println(
 								internalCount + "-DIS: " + imgElement.getAttribute("data-is-responsive-loaded"));
-						System.out.println(internalCount + "- Width:" + imgElement.getAttribute("width")
-								+ ", Height: " + imgElement.getAttribute("height"));
+						System.out.println(internalCount + "- Width:" + imgElement.getAttribute("width") + ", Height: "
+								+ imgElement.getAttribute("height"));
 						System.out.println(internalCount + "-bytes: " + Integer.toString(imgSize));
 						System.out.println(internalCount + "- imageName: " + imgName);
 
-						// Insert into XML
-						Element image = new Element("image");
-						image.setAttribute(new Attribute("id", "" + internalCount));
-						image.setAttribute(new Attribute("url", driver.getCurrentUrl()));
-						image.addContent(new Element("status").setText("optimized"));
-						image.addContent(new Element("name").setText(imgName));
-						image.addContent(new Element("SRC").setText(imgElement.getAttribute("src")));
-						image.addContent(new Element("width").setText(imgElement.getAttribute("width")));
-						image.addContent(new Element("height").setText(imgElement.getAttribute("height")));
-						image.addContent(new Element("weight").setText(Integer.toString(imgSize)));
-
-						doc.getRootElement().addContent(image);
+						// SQL Insert
+						String stringData = "'" + currentPageUrl + "' , '" + imgName + "' , 'optimized', "
+								+ currentImageWidth + ", " + currentImageHeight + ", " + imgSize + ", '" + weightStatus
+								+ "', '" + currentImageUrl + "'";
+						String exclusionCriteria = "imageurl = '" + currentImageUrl + "' AND imagename = '"
+								+ imgName + "'";
+						db.insertMultipleRecordsIntoTable("imagerepository", columnNames, stringData,
+								exclusionCriteria);
 					}
 					catch (Exception e)
 					{
@@ -282,7 +318,7 @@ public class ImageCheck
 
 		internalCountClass(internalCount);
 	}
-
+	
 	public int internalCountClass(int count)
 	{
 		internalCount = count;
