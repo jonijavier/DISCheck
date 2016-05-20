@@ -97,7 +97,7 @@ public class MainPageCheck
 		List<WebElement> urlList = driver.findElements(By.tagName("a"));
 		try
 		{
-			//mainUrlCheck = new UrlCheck(urlList, exclusionArray, driver, baseUrl);
+			mainUrlCheck = new UrlCheck(urlList, exclusionArray, driver, baseUrl);
 		}
 		catch (UnreachableBrowserException ube)
 		{
@@ -111,7 +111,23 @@ public class MainPageCheck
 		}
 
 		// Check all the images and store them in SQL in the main page
-		//ImageCheck ic = new ImageCheck(count, driver);
+		String fullSrc = baseUrl;
+		int startIndex = fullSrc.lastIndexOf("www.") - 1;
+		int endIndex = fullSrc.length() - (startIndex - 1);
+		String newTableName = fullSrc.substring(startIndex, endIndex);
+
+		System.out.println("New Table Name before replace: " + newTableName);
+
+		newTableName = newTableName.replace(".", "");
+		newTableName = newTableName.replace("/", "");
+		newTableName = newTableName.replace("_", "");
+		newTableName = newTableName.replace("-", "");
+
+		System.out.println("fullSrc: " + fullSrc + " StartIndex: " + startIndex + " End Index: " + endIndex);
+		System.out.println("New Table Name: " + newTableName);
+		System.out.println();
+		
+		ImageCheck ic = new ImageCheck(count, driver, newTableName);
 	}
 
 	@After

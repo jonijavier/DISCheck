@@ -46,6 +46,7 @@ public class ImageCheck
 		{
 			// Start image count and breakdown
 			invalidImageCount = 0;
+			
 			List<WebElement> imagesList = driver.findElements(By.tagName("img"));
 			System.out.println("Total no. of images are " + imagesList.size());
 
