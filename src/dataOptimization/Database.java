@@ -180,10 +180,6 @@ public class Database
 		internalTableName = tableName;
 		internalColumnName = columnNames;
 
-		String newInsertTableSQL = "INSERT INTO " + internalTableName + "(" + internalColumnName + ") SELECT '"
-				+ stringData + "' FROM dual WHERE NOT EXISTS (SELECT * FROM " + internalTableName + " WHERE "
-				+ exclusionCriteria + ");";
-
 		String newInsertMultipleRecordsSQL = "INSERT INTO " + internalTableName + "(" + internalColumnName + ")"
 				+ " SELECT " + stringData + " FROM dual WHERE NOT EXISTS (SELECT * FROM " + internalTableName
 				+ " WHERE " + exclusionCriteria + ");";
@@ -222,10 +218,57 @@ public class Database
 
 	}
 
+	public void updateRecordInTable(String tableName, String setColumnName, String setStringData,
+			String conditionColumnName, String conditionStringData) throws SQLException
+	{
+		internalDbConnection = null;
+		internalStatement = null;
+
+		internalTableName = tableName;
+
+		String updateRecordSQL = "UPDATE " + internalTableName + " SET " + setColumnName + " = '" + setStringData + "' "
+				+ " WHERE " + conditionColumnName + " = '" + conditionStringData + "'";
+
+		try
+		{
+			internalDbConnection = getDBConnection();
+			internalStatement = internalDbConnection.createStatement();
+
+			System.out.println(updateRecordSQL);
+
+			// Execute the Update SQL
+			internalStatement.execute(updateRecordSQL);
+
+			System.out.println("Record is updated on " + tableName + " table");
+
+		}
+		catch (SQLException e)
+		{
+
+			System.out.println(e.getMessage());
+
+		}
+		finally
+		{
+
+			if (internalStatement != null)
+			{
+				internalStatement.close();
+			}
+
+			if (internalDbConnection != null)
+			{
+				internalDbConnection.close();
+			}
+
+		}
+
+	}
+
+	// Special Methods
+
 	public void selectUrlAndRunImageCheck(String tableName, String columnName, Database db) throws SQLException
 	{
-		ImageCheck internalImageCheck;
-		
 		internalDbConnection = null;
 		internalStatement = null;
 
@@ -233,12 +276,15 @@ public class Database
 		internalColumnName = columnName;
 
 		String selectRecordsFromTableSQL = "SELECT " + internalColumnName + " from " + internalTableName;
-		
+
 		try
 		{
 			internalDbConnection = getDBConnection();
 			internalStatement = internalDbConnection.createStatement();
 
+			System.out.println("Starting Image Check for each Unique URL on: " + StoreVariables.getGlobalDbName() + "."
+					+ internalTableName);
+			System.out.println();
 			System.out.println(selectRecordsFromTableSQL);
 
 			// Execute Select SQL Statement
@@ -250,7 +296,8 @@ public class Database
 				System.out.println("Running Image Check on: " + internalUrlValue);
 				SetInternalBrowser.thisDriver.get(internalUrlValue);
 				SetInternalBrowser.thisDriver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
-				internalImageCheck = new ImageCheck(ImageCheck.getInternalCountClass(), SetInternalBrowser.thisDriver, db);
+				ImageCheck internalImageCheck = new ImageCheck(ImageCheck.getInternalCountClass(),
+						SetInternalBrowser.thisDriver, db);
 			}
 		}
 		catch (SQLException e)
@@ -273,19 +320,18 @@ public class Database
 
 		}
 	}
-	
-	public void selectUniqueUrlAndGetLinks(String tableName, String columnName, Database db, String[] exclusionArray) throws SQLException
+
+	public void selectUniqueUrlAndGetLinks(Database db, String[] exclusionArray) throws SQLException
 	{
-		ImageCheck internalImageCheck;
-		
 		internalDbConnection = null;
 		internalStatement = null;
 
-		internalTableName = tableName;
-		internalColumnName = columnName;
+		internalTableName = "urlrepository";
+		internalColumnName = "URL";
 
-		String selectRecordsFromTableSQL = "SELECT " + internalColumnName + " from " + internalTableName;
-		
+		String selectRecordsFromTableSQL = "SELECT " + internalColumnName + " FROM " + internalTableName
+				+ " WHERE 'UNIQUECHECK' NOT LIKE '';";
+
 		try
 		{
 			internalDbConnection = getDBConnection();
@@ -299,13 +345,13 @@ public class Database
 			while (currResultSet.next())
 			{
 				internalUrlValue = currResultSet.getString("URL");
-				System.out.println("Running Image Check on: " + internalUrlValue);
+				System.out.println("Running URL Check on: " + internalUrlValue);
 				SetInternalBrowser.thisDriver.get(internalUrlValue);
 				SetInternalBrowser.thisDriver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
 				List<WebElement> urlList = SetInternalBrowser.thisDriver.findElements(By.tagName("a"));
-				
-				//internalImageCheck = new ImageCheck(ImageCheck.getInternalCountClass(), SetInternalBrowser.thisDriver, db);
-				UrlCheck uc = new UrlCheck(urlList, exclusionArray, SetInternalBrowser.thisDriver, internalUrlValue, db);
+
+				UrlCheck uc = new UrlCheck(urlList, exclusionArray, SetInternalBrowser.thisDriver, internalUrlValue,
+						db);
 			}
 		}
 		catch (SQLException e)

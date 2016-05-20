@@ -1,9 +1,9 @@
 
-// Internal Class
 import dataOptimization.Database;
 import dataOptimization.ImageCheck;
 import dataOptimization.SetFileDetails;
 import dataOptimization.SetInternalBrowser;
+import dataOptimization.StoreVariables;
 import dataOptimization.UrlCheck;
 
 import org.junit.*;
@@ -27,92 +27,71 @@ import java.util.List;
 import java.util.Arrays;
 import java.util.Date;
 
-//@SuppressWarnings("unused")
+@SuppressWarnings("unused")
 public class MainPageCheck
 {
-	/**
-	 * INTRODUCTION:
-	 * 
-	 * IMPORTANT NOTE: Please change variables below this
-	 */
+	// Set-up: Url and Exclusion Array variables
+	private static String yourBaseUrl = StoreVariables.getGlobalBaseUrl();
+	private static String[] exclusionArray = StoreVariables.getGlobalExclusionArray();
 
-	// File Directory
-	//private String fileLocation = "C:/Users/User1/Documents/jjavier/";
+	// Set-up: Device Platform and Browser variables
+	private static String staticPlatform = StoreVariables.getGlobalStaticPlatform();
+	private static String staticBrowserVersion = StoreVariables.getGlobalStaticBrowserVersion();
+	private static String staticScreenResolution = StoreVariables.getGlobalStaticScreenResolution();
+	private static String setBrowserString = StoreVariables.getGlobalSetBrowserString();
+	private static String staticDeviceName = StoreVariables.getGlobalStaticDeviceName();
 
-	// Primary URL link. Location of the main home page where all the links will be extracted.
-	private String yourBaseUrl = "http://www.lancome.fr/";
+	// Set-up: Chrome Driver Location
+	private static String setChromeDriverLocation = StoreVariables.getGlobalChromeDriverLocation();
 
-	// All links and string that will not be included in the URLs that the code will cycle through for the image check
-	private String[] exclusionArray =
-	{ "javascript", "cookies", "index", "index", "#", ".be", ".dk", "spain", ".gr", ".it", ".lu", ".nl", ".no", ".at",
-			".pl", ".pt", ".ru", ".fi", ".se", ".ch", ".tr", ".co.uk", ".de", ".au", ".cn", ".hk", ".in", ".jp",
-			".com.tw", "-usa", ".my", ".sg", ".co.kr", ".co.th", "youtube", "twitter", "facebook", "store-locator",
-			".ca", ".br", ".ar", "tel:", "google", "instagram", "SendToFriend", "pinterest", "WishList-Add",
-			"Wishlist-Add", "consignesdetri" };
+	// Set-up: Database
+	private static String dbName = StoreVariables.getGlobalDbName();
+	private static final String DB_DRIVER = StoreVariables.getGlobal_DB_DRIVER();
+	private static final String DB_CONNECTION = StoreVariables.getGlobal_DB_CONNECTION();
+	private static final String DB_USER = StoreVariables.getGlobal_DB_USER();
+	private static final String DB_PASSWORD = StoreVariables.getGlobal_DB_PASSWORD();
 
-	// Values for Desktop Testing: staticPlatform = Windows 10, Windows 8, Windows 7, Windows XP, OS X [version_no. e.g. 10.11. OS X 10.11] 
-	private String staticPlatform = "Windows 10";
-	private String staticBrowserVersion = "20.0";
-	private String staticScreenResolution = "1920x1080";
+	// Set-up other variables
+	private static WebDriver driver;
+	private static FileWriter file;
+	private static Database db;
+	private static SetInternalBrowser browser;
+	private static UrlCheck mainUrlCheck;
 
-	// set Browser to: firefox, chrome, chromeMobile, safari
-	private String setBrowserString = "firefox";
-
-	// Values for Mobile Emulator Testing
-	private String staticDeviceName = "Google Nexus 5";
-
-	// set Chrome Driver Location
-	private String setChromeDriverLocation = "C:/Users/User1/Downloads/chromedriver_win32/chromedriver.exe";
-
-	private static String dbName = "LancomeFr";
-
-	/**
-	 * IMPORTANT NOTE: Please change variables above this
-	 */
-
-	private static final String DB_DRIVER = "com.mysql.jdbc.Driver";
-	private static final String DB_CONNECTION = "jdbc:mysql://localhost:3306/" + dbName;
-	private static final String DB_USER = "root";
-	private static final String DB_PASSWORD = "";
-
-	public static WebDriver driver;
-	public static FileWriter file;
-	public Database db;
-	public SetInternalBrowser browser;
-	public UrlCheck mainUrlCheck;
-
-	private String baseUrl;
-	//private String fileName;
-	public int count = 0;
+	private static String baseUrl;
+	private static int count = 0;
 
 	@Before
-	public void setUp() throws Exception
+	public static void setUp() throws Exception
 	{
-		System.out.println("**START TEST**");
+		try
+		{
+			System.out.println("**START TEST**");
 
-		browser = new SetInternalBrowser(setBrowserString, driver, setChromeDriverLocation, staticDeviceName,
-				staticPlatform, staticBrowserVersion, staticScreenResolution);
+			browser = new SetInternalBrowser(setBrowserString, driver, setChromeDriverLocation, staticDeviceName,
+					staticPlatform, staticBrowserVersion, staticScreenResolution);
 
-		// Start the browser and go to URL
-		baseUrl = yourBaseUrl;
-		driver = browser.getWebDriver();
-		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+			// Start the browser and go to URL
+			baseUrl = yourBaseUrl;
+			driver = browser.getWebDriver();
+			driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
 
-		// Console reporting
-		System.out.println("Starting Browser...");
-		System.out.println("Directing to URL: " + baseUrl);
+			// Console reporting
+			System.out.println("Starting Browser...");
+			System.out.println("Directing to URL: " + baseUrl);
+		}
+		catch (Exception e)
+		{
+			System.out.println("Exception found: MainPageCheck, setUp - Exception: ");
+			e.printStackTrace();
+		}
 	}
 
 	@Test
-	public void mainCode() throws Exception
+	public static void mainCode() throws Exception
 	{
 		// Open Browser and Navigate to Page
 		driver.get(baseUrl);
-
-		// Create the file in directory with first 4 chars of website url with date and time
-		//SetFileDetails fileDetails = new SetFileDetails(fileLocation, baseUrl.substring(11, 15), ".xml");
-		//File tempFile = new File(fileDetails.getFileName());
-		//fileDetails.checkIfFileExists(tempFile);
 
 		// Initialize Database
 		db = new Database(dbName, DB_DRIVER, DB_CONNECTION, DB_USER, DB_PASSWORD);
@@ -134,28 +113,17 @@ public class MainPageCheck
 			e.printStackTrace();
 		}
 
-		// Give a summary of URLs checked in the main page
-		int urlsStored = mainUrlCheck.getUrlNo() - mainUrlCheck.getSkippedNo();
-		System.out.println("Total No. of URLS: " + mainUrlCheck.getUrlNo());
-		System.out.println("Total No. of Skipped URLs: " + mainUrlCheck.getSkippedNo());
-		System.out.println("Total No. of Stored URLs: " + urlsStored);
-		System.out.println();
-		System.out.println("Starting Image Check for " + baseUrl);
-		
 		// Check all the images and store them in SQL in the main page
-		ImageCheck ic = new ImageCheck(count, driver, db);
-		
-		// Start checking all Unique URLs and store images
-		System.out.println("Starting Image Check for each Unique URL");
+		//ImageCheck ic = new ImageCheck(count, driver, db);
 
-		db.selectUniqueUrlAndGetLinks("urlrepository", "URL", db, exclusionArray);
-		db.selectUrlAndRunImageCheck("urlrepository", "URL", db);
+		//db.selectUniqueUrlAndGetLinks(db, exclusionArray);
+		//db.selectUrlAndRunImageCheck("urlrepository", "URL", db);
 
 		System.out.println("**END TEST**");
 	}
 
 	@After
-	public void tearDown() throws Exception
+	public static void tearDown() throws Exception
 	{
 		try
 		{

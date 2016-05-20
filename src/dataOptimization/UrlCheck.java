@@ -19,6 +19,8 @@ public class UrlCheck
 	{
 		try
 		{
+			System.out.println("Starting Image Check for " + baseUrl);
+			
 			// loops to segregate the non-url from the urls
 			for (WebElement aHrefElement : urlList)
 			{
@@ -73,9 +75,9 @@ public class UrlCheck
 				{
 					try
 					{
-						// add url to array
-						db.insertRecordIntoTable("urlrepository", "URL",
-								aHrefElement.getAttribute("href").toString());
+						// Add URL to the SQL database
+						db.insertRecordIntoTable("urlrepository", "URL", aHrefElement.getAttribute("href").toString());
+						
 						storedNo++;
 					}
 					catch (SQLException sqle)
@@ -90,6 +92,13 @@ public class UrlCheck
 
 				driver.manage().timeouts().implicitlyWait(1, TimeUnit.MILLISECONDS);
 			}
+			
+			int urlsStored = this.getUrlNo() - this.getSkippedNo();
+			System.out.println();
+			System.out.println("Total No. of URLS: " + this.getUrlNo());
+			System.out.println("Total No. of Skipped URLs: " + this.getSkippedNo());
+			System.out.println("Total No. of Stored URLs: " + urlsStored);
+			System.out.println();
 		}
 		catch (UnreachableBrowserException ube)
 		{
