@@ -112,7 +112,16 @@ public class MainPageCheck
 
 		// Check all the images and store them in SQL in the main page
 		String fullSrc = baseUrl;
-		int startIndex = fullSrc.lastIndexOf("www.") - 1;
+		int startIndex;
+		if (fullSrc.contains("www."))
+		{
+			startIndex = fullSrc.lastIndexOf("www.") - 1;
+		}
+		else
+		{
+			startIndex = 0;
+		}
+
 		int endIndex;
 		if (fullSrc.length() > 60)
 		{

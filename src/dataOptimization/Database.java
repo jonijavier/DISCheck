@@ -294,7 +294,16 @@ public class Database
 				System.out.println("internalUrlValue: " + internalUrlValue);
 
 				String fullSrc = internalUrlValue;
-				int startIndex = fullSrc.lastIndexOf("www.") - 1;
+				
+				int startIndex;
+				if (fullSrc.contains("www."))
+				{
+					startIndex = fullSrc.lastIndexOf("www.") - 1;
+				}
+				else
+				{
+					startIndex = 0;
+				}
 
 				int endIndex;
 				if (fullSrc.length() > 60)
