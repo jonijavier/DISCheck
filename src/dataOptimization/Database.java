@@ -295,7 +295,16 @@ public class Database
 
 				String fullSrc = internalUrlValue;
 				int startIndex = fullSrc.lastIndexOf("www.") - 1;
-				int endIndex = fullSrc.length() - (startIndex - 1);
+
+				int endIndex;
+				if (fullSrc.length() > 60)
+				{
+					endIndex = 59;
+				}
+				else
+				{
+					endIndex = fullSrc.length() - 1;
+				}
 				String newTableName = fullSrc.substring(startIndex, endIndex);
 
 				System.out.println("New Table Name before replace: " + newTableName);
@@ -304,6 +313,13 @@ public class Database
 				newTableName = newTableName.replace("/", "");
 				newTableName = newTableName.replace("_", "");
 				newTableName = newTableName.replace("-", "");
+				newTableName = newTableName.replace("%", "");
+				newTableName = newTableName.replace("?", "");
+				newTableName = newTableName.replace("=", "");
+				newTableName = newTableName.replace("&", "");
+				newTableName = newTableName.replace("$", "");
+				newTableName = newTableName.replace("#", "");
+				newTableName = newTableName.replace("+", "");
 
 				System.out.println("fullSrc: " + fullSrc + " StartIndex: " + startIndex + " End Index: " + endIndex);
 				System.out.println("New Table Name: " + newTableName);
