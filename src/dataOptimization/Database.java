@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -28,7 +29,8 @@ public class Database
 
 	public static String internalUrlValue = "";
 
-	public Database(String dbName, String DB_DRIVER, String DB_CONNECTION, String DB_USER, String DB_PASSWORD)
+	public static void Database(String dbName, String DB_DRIVER, String DB_CONNECTION, String DB_USER,
+			String DB_PASSWORD)
 	{
 		internalDBName = dbName;
 		internalDBDriver = DB_DRIVER;
@@ -78,16 +80,14 @@ public class Database
 		}
 	}
 
-	public static void createDbUserTable(String tableName, String dbName, String DB_DRIVER, String DB_CONNECTION,
-			String DB_USER, String DB_PASSWORD) throws SQLException
+	public static void createTable(String tableName, String columnNames) throws SQLException
 	{
 
 		internalDbConnection = null;
 		internalStatement = null;
 
-		String createTableSQL = "CREATE TABLE " + tableName + "(" + "USER_ID NUMBER(5) NOT NULL, "
-				+ "USERNAME VARCHAR(20) NOT NULL, " + "CREATED_BY VARCHAR(20) NOT NULL, "
-				+ "CREATED_DATE DATE NOT NULL, " + "PRIMARY KEY (USER_ID) " + ")";
+		String createTableSQL = "CREATE TABLE IF NOT EXISTS `" + tableName + "` (" + columnNames
+				+ ") ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;";
 
 		try
 		{
@@ -104,9 +104,8 @@ public class Database
 		}
 		catch (SQLException e)
 		{
-
-			System.out.println(e.getMessage());
-
+			System.out.println("Exception found: Database, createDbUserTable - Exception: ");
+			e.printStackTrace();
 		}
 		finally
 		{
@@ -125,7 +124,7 @@ public class Database
 
 	}
 
-	public void insertRecordIntoTable(String tableName, String columnName, String stringData) throws SQLException
+	public static void insertRecordIntoTable(String tableName, String columnName, String stringData) throws SQLException
 	{
 		internalDbConnection = null;
 		internalStatement = null;
@@ -151,9 +150,8 @@ public class Database
 		}
 		catch (SQLException e)
 		{
-
-			System.out.println(e.getMessage());
-
+			System.out.println("Exception found: Database, insertRecordIntoTable - Exception: ");
+			e.printStackTrace();
 		}
 		finally
 		{
@@ -171,7 +169,7 @@ public class Database
 
 	}
 
-	public void insertMultipleRecordsIntoTable(String tableName, String columnNames, String stringData,
+	public static void insertMultipleRecordsIntoTable(String tableName, String columnNames, String stringData,
 			String exclusionCriteria) throws SQLException
 	{
 		internalDbConnection = null;
@@ -198,9 +196,8 @@ public class Database
 		}
 		catch (SQLException e)
 		{
-
-			System.out.println(e.getMessage());
-
+			System.out.println("Exception found: Database, insertMultipleRecordsIntoTable - Exception: ");
+			e.printStackTrace();
 		}
 		finally
 		{
@@ -218,7 +215,7 @@ public class Database
 
 	}
 
-	public void updateRecordInTable(String tableName, String setColumnName, String setStringData,
+	public static void updateRecordInTable(String tableName, String setColumnName, String setStringData,
 			String conditionColumnName, String conditionStringData) throws SQLException
 	{
 		internalDbConnection = null;
@@ -244,9 +241,8 @@ public class Database
 		}
 		catch (SQLException e)
 		{
-
-			System.out.println(e.getMessage());
-
+			System.out.println("Exception found: Database, updateRecordInTable - Exception: ");
+			e.printStackTrace();
 		}
 		finally
 		{
@@ -266,8 +262,7 @@ public class Database
 	}
 
 	// Special Methods
-
-	public void selectUrlAndRunImageCheck(String tableName, String columnName, Database db) throws SQLException
+	public static void selectUrlAndRunImageCheck(String tableName, String columnName) throws SQLException
 	{
 		internalDbConnection = null;
 		internalStatement = null;
@@ -276,6 +271,8 @@ public class Database
 		internalColumnName = columnName;
 
 		String selectRecordsFromTableSQL = "SELECT " + internalColumnName + " from " + internalTableName;
+		String[] tempExclusionArray = StoreVariables.getGlobalExclusionArray();
+		Boolean excluded = false;
 
 		try
 		{
@@ -293,17 +290,62 @@ public class Database
 			while (currResultSet.next())
 			{
 				internalUrlValue = currResultSet.getString("URL");
-				System.out.println("Running Image Check on: " + internalUrlValue);
-				SetInternalBrowser.thisDriver.get(internalUrlValue);
-				SetInternalBrowser.thisDriver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
-				ImageCheck internalImageCheck = new ImageCheck(ImageCheck.getInternalCountClass(),
-						SetInternalBrowser.thisDriver, db);
-			}
-		}
-		catch (SQLException e)
-		{
-			System.out.println(e.getMessage());
 
+				System.out.println("internalUrlValue: " + internalUrlValue);
+
+				String fullSrc = internalUrlValue;
+				int startIndex = fullSrc.lastIndexOf("www.") - 1;
+				int endIndex = fullSrc.length() - (startIndex - 1);
+				String newTableName = fullSrc.substring(startIndex, endIndex);
+
+				System.out.println("New Table Name before replace: " + newTableName);
+
+				newTableName = newTableName.replace(".", "");
+				newTableName = newTableName.replace("/", "");
+				newTableName = newTableName.replace("_", "");
+				newTableName = newTableName.replace("-", "");
+
+				System.out.println("fullSrc: " + fullSrc + " StartIndex: " + startIndex + " End Index: " + endIndex);
+				System.out.println("New Table Name: " + newTableName);
+				System.out.println();
+
+				// runs through all the exclusions skiplist
+				for (int i = 0; i < tempExclusionArray.length; i++)
+				{
+					// reset checkSkipped value
+					excluded = false;
+
+					if (currResultSet.getString("URL").contains(tempExclusionArray[i]) == true)
+					{
+						System.out.println("SkipWord: " + tempExclusionArray[i]);
+						excluded = true;
+						break;
+					}
+					else
+					{
+						excluded = false;
+					}
+				}
+
+				if (excluded == true)
+				{
+					System.out.println("Skipping url: " + currResultSet.getString("URL").toString());
+				}
+				else
+				{
+					System.out.println("Running Image Check on: " + internalUrlValue);
+					SetInternalBrowser.thisDriver.get(internalUrlValue);
+					SetInternalBrowser.thisDriver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+					ImageCheck internalImageCheck = new ImageCheck(ImageCheck.getInternalCountClass(),
+							SetInternalBrowser.thisDriver, newTableName);
+				}
+			}
+
+		}
+		catch (Exception e)
+		{
+			System.out.println("Exception found: Database, selectUrlAndRunImageCheck - Exception: ");
+			e.printStackTrace();
 		}
 		finally
 		{
@@ -321,7 +363,7 @@ public class Database
 		}
 	}
 
-	public void selectUniqueUrlAndGetLinks(Database db, String[] exclusionArray) throws SQLException
+	public static void selectUniqueUrlAndGetLinks(String[] exclusionArray) throws SQLException
 	{
 		internalDbConnection = null;
 		internalStatement = null;
@@ -350,14 +392,13 @@ public class Database
 				SetInternalBrowser.thisDriver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
 				List<WebElement> urlList = SetInternalBrowser.thisDriver.findElements(By.tagName("a"));
 
-				UrlCheck uc = new UrlCheck(urlList, exclusionArray, SetInternalBrowser.thisDriver, internalUrlValue,
-						db);
+				UrlCheck uc = new UrlCheck(urlList, exclusionArray, SetInternalBrowser.thisDriver, internalUrlValue);
 			}
 		}
 		catch (SQLException e)
 		{
-			System.out.println(e.getMessage());
-
+			System.out.println("Exception found: Database, selectUniqueUrlAndGetLinks - Exception: ");
+			e.printStackTrace();
 		}
 		finally
 		{
@@ -398,9 +439,8 @@ public class Database
 		}
 		catch (SQLException e)
 		{
-
-			System.out.println(e.getMessage());
-
+			System.out.println("Exception found: Database, Connection - Exception: ");
+			e.printStackTrace();
 		}
 
 		return internalDbConnection;
@@ -410,5 +450,10 @@ public class Database
 	public String getInternalUrlValue()
 	{
 		return internalUrlValue;
+	}
+
+	public void getDataBase()
+	{
+
 	}
 }

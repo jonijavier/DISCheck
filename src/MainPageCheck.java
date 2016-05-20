@@ -93,14 +93,11 @@ public class MainPageCheck
 		// Open Browser and Navigate to Page
 		driver.get(baseUrl);
 
-		// Initialize Database
-		db = new Database(dbName, DB_DRIVER, DB_CONNECTION, DB_USER, DB_PASSWORD);
-
 		// Find all elements with tag name = a and store it in a list
 		List<WebElement> urlList = driver.findElements(By.tagName("a"));
 		try
 		{
-			mainUrlCheck = new UrlCheck(urlList, exclusionArray, driver, baseUrl, db);
+			//mainUrlCheck = new UrlCheck(urlList, exclusionArray, driver, baseUrl);
 		}
 		catch (UnreachableBrowserException ube)
 		{
@@ -114,12 +111,7 @@ public class MainPageCheck
 		}
 
 		// Check all the images and store them in SQL in the main page
-		//ImageCheck ic = new ImageCheck(count, driver, db);
-
-		//db.selectUniqueUrlAndGetLinks(db, exclusionArray);
-		//db.selectUrlAndRunImageCheck("urlrepository", "URL", db);
-
-		System.out.println("**END TEST**");
+		//ImageCheck ic = new ImageCheck(count, driver);
 	}
 
 	@After
@@ -127,6 +119,8 @@ public class MainPageCheck
 	{
 		try
 		{
+			System.out.println("**END TEST**");
+			
 			driver = browser.getWebDriver();
 			driver.quit();
 		}

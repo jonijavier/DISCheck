@@ -1,3 +1,4 @@
+import dataOptimization.Database;
 import dataOptimization.StoreVariables;
 
 public class MainExecute
@@ -53,11 +54,19 @@ public class MainExecute
 		StoreVariables.setGlobalDeviceVariables(staticPlatform, staticBrowserVersion, staticScreenResolution,
 				setBrowserString, staticDeviceName, chromeDriverLocation);
 		StoreVariables.setGlobalDatabaseVariables(dbName, DB_DRIVER, DB_CONNECTION, DB_USER, DB_PASSWORD);
+		
+		// Initialize Database
+		Database.Database(dbName, DB_DRIVER, DB_CONNECTION, DB_USER, DB_PASSWORD);
 
 		try
 		{
 			MainPageCheck.setUp();
 			MainPageCheck.mainCode();
+						
+			// For getting all the links in all of the available urls in the urlrepository
+			//Database.selectUniqueUrlAndGetLinks(exclusionArray);
+			Database.selectUrlAndRunImageCheck("urlrepository", "URL");
+			
 			MainPageCheck.tearDown();
 		}
 		catch (Exception e)

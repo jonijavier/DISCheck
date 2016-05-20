@@ -15,7 +15,7 @@ public class UrlCheck
 	public int urlNo = 0;
 	public int storedNo = 0;
 
-	public UrlCheck(List<WebElement> urlList, String[] exclusionArray, WebDriver driver, String baseUrl, Database db)
+	public UrlCheck(List<WebElement> urlList, String[] exclusionArray, WebDriver driver, String baseUrl)
 	{
 		try
 		{
@@ -76,7 +76,7 @@ public class UrlCheck
 					try
 					{
 						// Add URL to the SQL database
-						db.insertRecordIntoTable("urlrepository", "URL", aHrefElement.getAttribute("href").toString());
+						Database.insertRecordIntoTable("urlrepository", "URL", aHrefElement.getAttribute("href").toString());
 						
 						storedNo++;
 					}

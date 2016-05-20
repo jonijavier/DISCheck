@@ -19,10 +19,13 @@ public class StoreVariables
 
 	// Database Set-up
 	public static String globalDbName;
-	private static String global_DB_DRIVER;
-	private static String global_DB_CONNECTION;
-	private static String global_DB_USER;
-	private static String global_DB_PASSWORD;
+	public static String global_DB_DRIVER;
+	public static String global_DB_CONNECTION;
+	public static String global_DB_USER;
+	public static String global_DB_PASSWORD;
+	
+	// Other Variables 
+	public static int globalCount;
 
 	// Set Global Variables for baseUrl and ExclusionArray
 	public static void setGlobalUrlVariables(String baseUrl, String[] exclusionArray)
@@ -89,8 +92,8 @@ public class StoreVariables
 		System.out.println("Change successfully made for global_DB_PASSWORD: " + global_DB_PASSWORD);
 	}
 
-	// Setting a single Variable
-	public static void setSingleVariable(String variableName, String variableSetData)
+	// Setting a single string variable
+	public static void setSingleStringVariable(String variableName, String variableSetData)
 	{
 		switch (variableName)
 		{
@@ -143,6 +146,21 @@ public class StoreVariables
 				System.out.println("Sorry, the global variable: " + variableName
 						+ " does not exist. Cannot update it with: " + variableSetData);
 
+		}
+	}
+	
+	// Setting a single integer variable
+	public static void setSingleStringVariable(String variableName, int variableSetData)
+	{
+		switch (variableName)
+		{
+			case "count":
+				System.out.println("Global Variable: " + variableName + " Change: " + globalCount
+						+ " to " + variableSetData);
+				globalCount = variableSetData;
+			default:
+				System.out.println("Sorry, the global variable: " + variableName
+						+ " does not exist. Cannot update it with: " + variableSetData);
 		}
 	}
 	
