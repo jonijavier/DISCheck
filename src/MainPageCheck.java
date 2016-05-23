@@ -68,6 +68,7 @@ public class MainPageCheck
 		{
 			System.out.println("**START TEST**");
 
+			// Set Browser to Be Used Based on Main Execute parameters/variables that were set
 			browser = new SetInternalBrowser(setBrowserString, driver, setChromeDriverLocation, staticDeviceName,
 					staticPlatform, staticBrowserVersion, staticScreenResolution);
 
@@ -88,7 +89,7 @@ public class MainPageCheck
 	}
 
 	@Test
-	public static void mainCode() throws Exception
+	public static void mainCode(String runMainUrlCheck) throws Exception
 	{
 		// Open Browser and Navigate to Page
 		driver.get(baseUrl);
@@ -97,7 +98,19 @@ public class MainPageCheck
 		List<WebElement> urlList = driver.findElements(By.tagName("a"));
 		try
 		{
-			//mainUrlCheck = new UrlCheck(urlList, exclusionArray, driver, baseUrl);
+			if (runMainUrlCheck.contains("skip"))
+			{
+				// do nothing if the user indicates that URL check for main URL can be skipped.
+			}
+			else if (runMainUrlCheck.equals("imagecheckonly"))
+			{
+				// do nothing if the user indicates that URL check for main URL can be skipped.
+			}
+			else 
+			{
+				// Default is to run main url check
+				mainUrlCheck = new UrlCheck(urlList, exclusionArray, driver, baseUrl);	
+			}
 		}
 		catch (UnreachableBrowserException ube)
 		{
@@ -113,8 +126,21 @@ public class MainPageCheck
 		// Check all the images and store them in SQL in the main page
 		String fullSrc = baseUrl;
 		
-		StoreVariables.setGlobalTempTableName(fullSrc);
-		ImageCheck ic = new ImageCheck(count, driver, StoreVariables.getGlobalTempTableName());
+		
+		if (runMainUrlCheck.contains("skip"))
+		{
+			// do nothing if the user indicates that image check for main URL can be skipped.
+		}
+		else if (runMainUrlCheck.equals("urlcheckonly"))
+		{
+			// do nothing if the user indicates that image check for main URL can be skipped.
+		}
+		else
+		{
+			StoreVariables.setGlobalTempTableName(fullSrc);
+			ImageCheck ic = new ImageCheck(count, driver, StoreVariables.getGlobalTempTableName());
+		}
+
 	}
 
 	@After

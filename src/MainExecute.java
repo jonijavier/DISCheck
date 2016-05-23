@@ -20,7 +20,7 @@ public class MainExecute
 			".ca", ".br", ".ar", "tel:", "google", "instagram", "SendToFriend", "pinterest", "WishList-Add",
 			"Wishlist-Add", "consignesdetri", "my-account", "IncludeSignIn", "https", "gift-finder-pages", "wishlist",
 			"contact", "GiftRegistry", "ProductFinder-Quiz", "csort", "Review", "ProductFinder-BeautyConsultation",
-			"loreal", "search?", "Lancome-RefinementShow?", "pdf", "register", "customer-service", "sitemap" };
+			"loreal", "search?", "Lancome-RefinementsShow?", "pdf", "register", "customer-service", "sitemap" };
 
 	// Values for Desktop Testing: staticPlatform = Windows 10, Windows 8, Windows 7, Windows XP, OS X [version_no. e.g. 10.11. OS X 10.11] 
 	private static String staticPlatform = "Windows 10";
@@ -42,6 +42,9 @@ public class MainExecute
 	private static final String DB_CONNECTION = "jdbc:mysql://localhost:3306/" + dbName;
 	private static final String DB_USER = "root";
 	private static final String DB_PASSWORD = "";
+	
+	// This will indicate if you want to do URL Check or Image Check on the Main URL indicated above (e.g. yourBaseUrl). Allowable Values = yes, skip, imagecheckonly, urlcheckonly
+	private static String runMainUrlCheck = "yes";
 
 	/**
 	 * IMPORTANT NOTE: Please change ONLY the variables above this
@@ -61,11 +64,10 @@ public class MainExecute
 		try
 		{
 			MainPageCheck.setUp();
-			MainPageCheck.mainCode();
+			MainPageCheck.mainCode(runMainUrlCheck);
 
 			// For getting all the links in all of the available urls in the urlrepository
 			//Database.selectUniqueUrlAndGetLinks(exclusionArray);
-			//Database.selectUrlAndRunImageCheck("urlrepository", "URL");
 			Database.selectUrlAndRunImageCheck("urlrepository", "URL",
 					"http://www.lancome.fr/parfum/femme/hypnose/hypnose-eau-de-parfum/3147758235548.html");
 
