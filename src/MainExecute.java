@@ -37,18 +37,25 @@ public class MainExecute
 	private static String chromeDriverLocation = "C:/Users/User1/Downloads/chromedriver_win32/chromedriver.exe";
 
 	// Set Database Information
-	private static String dbName = "LancomeFr";
+	private static String dbName = "lancomejtjtest";
 	private static final String DB_DRIVER = "com.mysql.jdbc.Driver";
 	private static final String DB_CONNECTION = "jdbc:mysql://localhost:3306/" + dbName;
 	private static final String DB_USER = "root";
 	private static final String DB_PASSWORD = "";
-	
+
 	// This will indicate if you want to do URL Check or Image Check on the Main URL indicated above (e.g. yourBaseUrl). Allowable Values = yes, skip, imagecheckonly, urlcheckonly
-	private static String runMainUrlCheck = "yes";
+	private static String runMainUrlCheck = "skip";
+
+	// Indicate URL to start image check from
+	private static String startingUrl = "http://www.lancome.fr/parfum/femme/la-nuit-tresor/la-nuit-tresor/3605533315163.html";
 
 	/**
 	 * IMPORTANT NOTE: Please change ONLY the variables above this
 	 */
+
+	// Set URL Repository Table Name and Column Name
+	private static String urlColumnName = "URL";
+	private static String urlTableName = "urlrepository";
 
 	public static void main(String[] args)
 	{
@@ -68,8 +75,7 @@ public class MainExecute
 
 			// For getting all the links in all of the available urls in the urlrepository
 			//Database.selectUniqueUrlAndGetLinks(exclusionArray);
-			Database.selectUrlAndRunImageCheck("urlrepository", "URL",
-					"http://www.lancome.fr/parfum/femme/hypnose/hypnose-eau-de-parfum/3147758235548.html");
+			Database.selectUrlAndRunImageCheck(urlTableName, urlColumnName, startingUrl);
 
 			MainPageCheck.tearDown();
 		}

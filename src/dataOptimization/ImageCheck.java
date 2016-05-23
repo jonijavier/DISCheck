@@ -39,11 +39,18 @@ public class ImageCheck
 	private String weightStatus = "no weight status";
 	private String currentImageUrl = "";
 
+	// This method stores ALL images checked into one table. The tablename can be set below.
 	public ImageCheck(int count, WebDriver driver)
 	{
 		int internalCount = count;
 		try
 		{
+			String tempTableName = "imagerepository";
+			
+			// Create new Image Repository Table for storing imagecheck data
+			String tableColumns = "`RecordID` INT(11) NOT NULL AUTO_INCREMENT, `PageURL` text NOT NULL, `ImageName` text NOT NULL, `OptimizationCheck` text NOT NULL, `Width` text NOT NULL, `Height` text NOT NULL, `Weight` text NOT NULL, `WeightStatus` text NOT NULL, `ImageUrl` text NOT NULL, PRIMARY KEY (`RecordID`)";
+			Database.createTable(tempTableName, tableColumns);
+			
 			// Start image count and breakdown
 			invalidImageCount = 0;
 			
@@ -72,7 +79,7 @@ public class ImageCheck
 					}
 					catch (Exception e)
 					{
-						System.out.println("JTJ//ERROR// - Exception caught:");
+						System.out.println("Exception found: ImageCheck, ImageCheck(1st) - Exception: ");
 						e.printStackTrace();
 					}
 				}
@@ -128,7 +135,7 @@ public class ImageCheck
 									+ weightStatus + "', '" + currentImageUrl + "'";
 							String exclusionCriteria = "imageurl = '" + currentImageUrl + "' AND imagename = '"
 									+ imgName + "'";
-							Database.insertMultipleRecordsIntoTable("imagerepository", columnNames, stringData,
+							Database.insertMultipleRecordsIntoTable(tempTableName, columnNames, stringData,
 									exclusionCriteria);
 
 						}
@@ -175,7 +182,7 @@ public class ImageCheck
 										+ weightStatus + "', '" + currentImageUrl + "'";
 								String exclusionCriteria = "imageurl = '" + currentImageUrl + "' AND imagename = '"
 										+ imgName + "'";
-								Database.insertMultipleRecordsIntoTable("imagerepository", columnNames, stringData,
+								Database.insertMultipleRecordsIntoTable(tempTableName, columnNames, stringData,
 										exclusionCriteria);
 							}
 							else if (fullSrc.contains(".png"))
@@ -198,7 +205,7 @@ public class ImageCheck
 										+ weightStatus + "', '" + currentImageUrl + "'";
 								String exclusionCriteria = "imageurl = '" + currentImageUrl + "' AND imagename = '"
 										+ imgName + "'";
-								Database.insertMultipleRecordsIntoTable("imagerepository", columnNames, stringData,
+								Database.insertMultipleRecordsIntoTable(tempTableName, columnNames, stringData,
 										exclusionCriteria);
 							}
 							else if (fullSrc.contains(".gif"))
@@ -221,7 +228,7 @@ public class ImageCheck
 										+ weightStatus + "', '" + currentImageUrl + "'";
 								String exclusionCriteria = "imageurl = '" + currentImageUrl + "' AND imagename = '"
 										+ imgName + "'";
-								Database.insertMultipleRecordsIntoTable("imagerepository", columnNames, stringData,
+								Database.insertMultipleRecordsIntoTable(tempTableName, columnNames, stringData,
 										exclusionCriteria);
 							}
 							else
@@ -244,16 +251,15 @@ public class ImageCheck
 										+ weightStatus + "', '" + currentImageUrl + "'";
 								String exclusionCriteria = "imageurl = '" + currentImageUrl + "' AND imagename = '"
 										+ imgName + "'";
-								Database.insertMultipleRecordsIntoTable("imagerepository", columnNames, stringData,
+								Database.insertMultipleRecordsIntoTable(tempTableName, columnNames, stringData,
 										exclusionCriteria);
 							}
 						}
 					}
 					catch (Exception e)
 					{
-						System.out.println("JTJ//ERROR// - Exception caught:");
+						System.out.println("Exception found: ImageCheck, ImageCheck(1st) - Exception: ");
 						e.printStackTrace();
-						System.out.println(e.getMessage());
 					}
 				}
 				else
@@ -300,14 +306,13 @@ public class ImageCheck
 								+ "', '" + currentImageUrl + "'";
 						String exclusionCriteria = "imageurl = '" + currentImageUrl + "' AND imagename = '" + imgName
 								+ "'";
-						Database.insertMultipleRecordsIntoTable("imagerepository", columnNames, stringData,
+						Database.insertMultipleRecordsIntoTable(tempTableName, columnNames, stringData,
 								exclusionCriteria);
 					}
 					catch (Exception e)
 					{
-						System.out.println("JTJ//ERROR// - Exception caught:");
+						System.out.println("Exception found: ImageCheck, ImageCheck(1st) - Exception: ");
 						e.printStackTrace();
-						System.out.println(e.getMessage());
 					}
 				}
 			}
@@ -319,9 +324,8 @@ public class ImageCheck
 		}
 		catch (Exception e)
 		{
-			System.out.println("JTJ//ERROR// - Exception caught:");
+			System.out.println("Exception found: ImageCheck, ImageCheck(1st) - Exception: ");
 			e.printStackTrace();
-			System.out.println(e.getMessage());
 		}
 
 		internalCountClass(internalCount);
@@ -365,7 +369,7 @@ public class ImageCheck
 					}
 					catch (Exception e)
 					{
-						System.out.println("JTJ//ERROR// - Exception caught:");
+						System.out.println("Exception found: ImageCheck, ImageCheck(2nd) - Exception: ");
 						e.printStackTrace();
 					}
 				}
@@ -544,9 +548,8 @@ public class ImageCheck
 					}
 					catch (Exception e)
 					{
-						System.out.println("JTJ//ERROR// - Exception caught:");
+						System.out.println("Exception found: ImageCheck, ImageCheck(2nd) - Exception: ");
 						e.printStackTrace();
-						System.out.println(e.getMessage());
 					}
 				}
 				else
@@ -598,9 +601,8 @@ public class ImageCheck
 					}
 					catch (Exception e)
 					{
-						System.out.println("JTJ//ERROR// - Exception caught:");
+						System.out.println("Exception found: ImageCheck, ImageCheck(2nd) - Exception: ");
 						e.printStackTrace();
-						System.out.println(e.getMessage());
 					}
 				}
 			}
@@ -612,9 +614,8 @@ public class ImageCheck
 		}
 		catch (Exception e)
 		{
-			System.out.println("JTJ//ERROR// - Exception caught:");
+			System.out.println("Exception found: ImageCheck, ImageCheck(2nd) - Exception: ");
 			e.printStackTrace();
-			System.out.println(e.getMessage());
 		}
 
 		internalCountClass(internalCount);
@@ -648,7 +649,7 @@ public class ImageCheck
 		}
 		catch (Exception e)
 		{
-			System.out.println("JTJ//ERROR// - Exception: ");
+			System.out.println("Exception found: ImageCheck, verifyimageActive - Exception: ");
 			e.printStackTrace();
 		}
 	}
