@@ -54,7 +54,7 @@ public class MainExecute
 		StoreVariables.setGlobalDeviceVariables(staticPlatform, staticBrowserVersion, staticScreenResolution,
 				setBrowserString, staticDeviceName, chromeDriverLocation);
 		StoreVariables.setGlobalDatabaseVariables(dbName, DB_DRIVER, DB_CONNECTION, DB_USER, DB_PASSWORD);
-		
+
 		// Initialize Database
 		Database.Database(dbName, DB_DRIVER, DB_CONNECTION, DB_USER, DB_PASSWORD);
 
@@ -62,11 +62,13 @@ public class MainExecute
 		{
 			MainPageCheck.setUp();
 			MainPageCheck.mainCode();
-						
+
 			// For getting all the links in all of the available urls in the urlrepository
 			//Database.selectUniqueUrlAndGetLinks(exclusionArray);
-			Database.selectUrlAndRunImageCheck("urlrepository", "URL");
-			
+			//Database.selectUrlAndRunImageCheck("urlrepository", "URL");
+			Database.selectUrlAndRunImageCheck("urlrepository", "URL",
+					"http://www.lancome.fr/parfum/femme/hypnose/hypnose-eau-de-parfum/3147758235548.html");
+
 			MainPageCheck.tearDown();
 		}
 		catch (Exception e)
