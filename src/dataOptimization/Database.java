@@ -261,7 +261,7 @@ public class Database
 
 	}
 
-	// Special Methods
+	// Special Method to get URl
 	public static void selectUrlAndRunImageCheck(String tableName, String columnName) throws SQLException
 	{
 		internalDbConnection = null;
@@ -294,7 +294,7 @@ public class Database
 				System.out.println("internalUrlValue: " + internalUrlValue);
 
 				String fullSrc = internalUrlValue;
-				
+
 				int startIndex;
 				if (fullSrc.contains("www."))
 				{
@@ -363,6 +363,145 @@ public class Database
 					SetInternalBrowser.thisDriver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
 					ImageCheck internalImageCheck = new ImageCheck(ImageCheck.getInternalCountClass(),
 							SetInternalBrowser.thisDriver, newTableName);
+				}
+			}
+
+		}
+		catch (Exception e)
+		{
+			System.out.println("Exception found: Database, selectUrlAndRunImageCheck - Exception: ");
+			e.printStackTrace();
+		}
+		finally
+		{
+
+			if (internalStatement != null)
+			{
+				internalStatement.close();
+			}
+
+			if (internalDbConnection != null)
+			{
+				internalDbConnection.close();
+			}
+
+		}
+	}
+
+	// Duplicate to restart test on imagechecks for all links from a specific url point
+	public static void selectUrlAndRunImageCheck(String tableName, String columnName, String restartCondition)
+			throws SQLException
+	{
+		internalDbConnection = null;
+		internalStatement = null;
+
+		internalTableName = tableName;
+		internalColumnName = columnName;
+
+		String selectRecordsFromTableSQL = "SELECT " + internalColumnName + " from " + internalTableName;
+		String[] tempExclusionArray = StoreVariables.getGlobalExclusionArray();
+		Boolean excluded = false;
+
+		Boolean savePoint = false;
+
+		try
+		{
+			internalDbConnection = getDBConnection();
+			internalStatement = internalDbConnection.createStatement();
+
+			System.out.println("Starting Image Check for each Unique URL on: " + StoreVariables.getGlobalDbName() + "."
+					+ internalTableName);
+			System.out.println();
+			System.out.println(selectRecordsFromTableSQL);
+
+			// Execute Select SQL Statement
+			ResultSet currResultSet = internalStatement.executeQuery(selectRecordsFromTableSQL);
+
+			while (currResultSet.next())
+			{
+				internalUrlValue = currResultSet.getString("URL");
+
+				if (internalUrlValue.equals(restartCondition))
+				{
+					savePoint = true;
+				}
+
+				if (savePoint == true)
+				{
+					System.out.println("internalUrlValue: " + internalUrlValue);
+
+					String fullSrc = internalUrlValue;
+
+					int startIndex;
+					if (fullSrc.contains("www."))
+					{
+						startIndex = fullSrc.lastIndexOf("www.") - 1;
+					}
+					else
+					{
+						startIndex = 0;
+					}
+
+					int endIndex;
+					if (fullSrc.length() > 60)
+					{
+						endIndex = 59;
+					}
+					else
+					{
+						endIndex = fullSrc.length() - 1;
+					}
+					String newTableName = fullSrc.substring(startIndex, endIndex);
+
+					System.out.println("New Table Name before replace: " + newTableName);
+
+					newTableName = newTableName.replace(".", "");
+					newTableName = newTableName.replace("/", "");
+					newTableName = newTableName.replace("_", "");
+					newTableName = newTableName.replace("-", "");
+					newTableName = newTableName.replace("%", "");
+					newTableName = newTableName.replace("?", "");
+					newTableName = newTableName.replace("=", "");
+					newTableName = newTableName.replace("&", "");
+					newTableName = newTableName.replace("$", "");
+					newTableName = newTableName.replace("#", "");
+					newTableName = newTableName.replace("+", "");
+
+					System.out
+							.println("fullSrc: " + fullSrc + " StartIndex: " + startIndex + " End Index: " + endIndex);
+					System.out.println("New Table Name: " + newTableName);
+					System.out.println();
+
+					// runs through all the exclusions skiplist
+					for (int i = 0; i < tempExclusionArray.length; i++)
+					{
+						// reset checkSkipped value
+						excluded = false;
+
+						if (currResultSet.getString("URL").contains(tempExclusionArray[i]) == true)
+						{
+							System.out.println("SkipWord: " + tempExclusionArray[i]);
+							excluded = true;
+							break;
+						}
+						else
+						{
+							excluded = false;
+						}
+					}
+
+					if (excluded == true)
+					{
+						System.out.println("Skipping url: " + currResultSet.getString("URL").toString());
+					}
+					else
+					{
+						System.out.println("Running Image Check on: " + internalUrlValue);
+						SetInternalBrowser.thisDriver.get(internalUrlValue);
+						SetInternalBrowser.thisDriver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+						ImageCheck internalImageCheck = new ImageCheck(ImageCheck.getInternalCountClass(),
+								SetInternalBrowser.thisDriver, newTableName);
+					}
 				}
 			}
 
