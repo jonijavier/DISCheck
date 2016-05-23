@@ -151,7 +151,7 @@ public class StoreVariables
 	}
 	
 	// Setting a single integer variable
-	public static void setSingleStringVariable(String variableName, int variableSetData)
+	public static void setSingleIntegerVariable(String variableName, int variableSetData)
 	{
 		switch (variableName)
 		{
@@ -175,6 +175,7 @@ public class StoreVariables
 		System.out.println("Change successfully made for globalExclusionArray: " + Arrays.toString(globalExclusionArray));
 	}
 	
+	// Set Global Temporary Table Name for Table Creation Purposes
 	public static void setGlobalTempTableName(String fullSrc)
 	{
 		int startIndex;
