@@ -112,46 +112,9 @@ public class MainPageCheck
 
 		// Check all the images and store them in SQL in the main page
 		String fullSrc = baseUrl;
-		int startIndex;
-		if (fullSrc.contains("www."))
-		{
-			startIndex = fullSrc.lastIndexOf("www.") - 1;
-		}
-		else
-		{
-			startIndex = 0;
-		}
-
-		int endIndex;
-		if (fullSrc.length() > 60)
-		{
-			endIndex = 59;
-		}
-		else
-		{
-			endIndex = fullSrc.length() - 1;
-		}
-		String newTableName = fullSrc.substring(startIndex, endIndex);
-
-		System.out.println("New Table Name before replace: " + newTableName);
-
-		newTableName = newTableName.replace(".", "");
-		newTableName = newTableName.replace("/", "");
-		newTableName = newTableName.replace("_", "");
-		newTableName = newTableName.replace("-", "");
-		newTableName = newTableName.replace("%", "");
-		newTableName = newTableName.replace("?", "");
-		newTableName = newTableName.replace("=", "");
-		newTableName = newTableName.replace("&", "");
-		newTableName = newTableName.replace("$", "");
-		newTableName = newTableName.replace("#", "");
-		newTableName = newTableName.replace("+", "");
-
-		System.out.println("fullSrc: " + fullSrc + " StartIndex: " + startIndex + " End Index: " + endIndex);
-		System.out.println("New Table Name: " + newTableName);
-		System.out.println();
 		
-		//ImageCheck ic = new ImageCheck(count, driver, newTableName);
+		StoreVariables.setGlobalTempTableName(fullSrc);
+		ImageCheck ic = new ImageCheck(count, driver, StoreVariables.getGlobalTempTableName());
 	}
 
 	@After

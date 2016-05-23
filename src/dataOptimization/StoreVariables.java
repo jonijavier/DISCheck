@@ -26,6 +26,7 @@ public class StoreVariables
 	
 	// Other Variables 
 	public static int globalCount;
+	public static String globalTempTableName;
 
 	// Set Global Variables for baseUrl and ExclusionArray
 	public static void setGlobalUrlVariables(String baseUrl, String[] exclusionArray)
@@ -173,6 +174,51 @@ public class StoreVariables
 		
 		System.out.println("Change successfully made for globalExclusionArray: " + Arrays.toString(globalExclusionArray));
 	}
+	
+	public static void setGlobalTempTableName(String fullSrc)
+	{
+		int startIndex;
+		if (fullSrc.contains("www."))
+		{
+			startIndex = fullSrc.lastIndexOf("www.") - 1;
+		}
+		else
+		{
+			startIndex = 0;
+		}
+
+		int endIndex;
+		if (fullSrc.length() > 60)
+		{
+			endIndex = 59;
+		}
+		else
+		{
+			endIndex = fullSrc.length() - 1;
+		}
+		String newTableName = fullSrc.substring(startIndex, endIndex);
+
+		System.out.println("New Table Name before replace: " + newTableName);
+
+		newTableName = newTableName.replace(".", "");
+		newTableName = newTableName.replace("/", "");
+		newTableName = newTableName.replace("_", "");
+		newTableName = newTableName.replace("-", "");
+		newTableName = newTableName.replace("%", "");
+		newTableName = newTableName.replace("?", "");
+		newTableName = newTableName.replace("=", "");
+		newTableName = newTableName.replace("&", "");
+		newTableName = newTableName.replace("$", "");
+		newTableName = newTableName.replace("#", "");
+		newTableName = newTableName.replace("+", "");
+		newTableName = newTableName.replace(":", "");
+		
+		System.out.println("fullSrc: " + fullSrc + " StartIndex: " + startIndex + " End Index: " + endIndex);
+		System.out.println("New Table Name: " + newTableName);
+		System.out.println();
+		
+		globalTempTableName = newTableName;
+	}
 
 	// Get Global Variable Methods
 	public static String getGlobalBaseUrl()
@@ -238,5 +284,10 @@ public class StoreVariables
 	public static String getGlobal_DB_PASSWORD()
 	{
 		return global_DB_PASSWORD;
+	}
+	
+	public static String getGlobalTempTableName()
+	{
+		return globalTempTableName;
 	}
 }
