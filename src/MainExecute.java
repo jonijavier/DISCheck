@@ -5,6 +5,8 @@ public class MainExecute
 {
 	/**
 	 * INTRODUCTION:
+	 * 1. Before running this script, please make sure your SQL server is available and online.
+	 * 2. This main execute is where you can run all the methods found throughout the default package, as well as the dataOptimization package.
 	 * 
 	 * IMPORTANT NOTE: Please change ONLY the variables below this
 	 */
