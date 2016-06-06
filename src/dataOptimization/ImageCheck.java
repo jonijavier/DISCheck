@@ -194,10 +194,13 @@ public class ImageCheck
 						startIndex = fullSrc.lastIndexOf("/") + 1;
 						endIndex = fullSrc.indexOf("?");
 						imgName = fullSrc.substring(startIndex, endIndex);
+						
+						// Setting optimization status
+						optStatus = "optimized";
 
 						// This replaces the console print information section
-						this.printConsoleInformation(internalCount, fullSrc, "This image is optimized", disStatus,
-								widthText, heightText, imgSize, imgName);
+						this.printConsoleInformation(internalCount, fullSrc, optStatus,
+								disStatus, widthText, heightText, imgSize, imgName);
 
 						// SQL Insert information into table
 						this.setStringData(currentPageUrl, imgName, optStatus, currentImageWidth, currentImageHeight, imgSize, weightStatus, currentImageUrl);
@@ -219,7 +222,7 @@ public class ImageCheck
 		}
 		catch (Exception e)
 		{
-			System.out.println("Exception found: ImageCheck, ImageCheck(2nd) - Exception: ");
+			System.out.println("Exception found: ImageCheck, ImageCheck - Exception: ");
 			e.printStackTrace();
 		}
 
