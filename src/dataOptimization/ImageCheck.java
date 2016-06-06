@@ -143,7 +143,7 @@ public class ImageCheck
 								imgName = fullSrc.substring(startIndex, endIndex) + ".png";
 
 								// This replaces the console print information section
-								this.printConsoleInformation(internalCount, fullSrc, "This image is not optimized",
+								this.printConsoleInformation(internalCount, fullSrc, optStatus,
 										disStatus, widthText, heightText, imgSize, imgName);
 
 								// SQL Insert information into table
@@ -157,9 +157,8 @@ public class ImageCheck
 								imgName = fullSrc.substring(startIndex, endIndex) + ".gif";
 
 								// This replaces the console print information section
-								this.printConsoleInformation(internalCount, fullSrc, "This image is not optimized",
+								this.printConsoleInformation(internalCount, fullSrc, optStatus,
 										disStatus, widthText, heightText, imgSize, imgName);
-
 								// SQL Insert information into table
 								this.setStringData(currentPageUrl, imgName, optStatus, currentImageWidth, currentImageHeight, imgSize, weightStatus, currentImageUrl);
 								Database.insertMultipleRecordsIntoTable(newTableName, columnNames, stringData,
@@ -167,11 +166,10 @@ public class ImageCheck
 							}
 							else
 							{
-								// do nothing
 								imgName = "No Image Name";
 
 								// This replaces the console print information section
-								this.printConsoleInformation(internalCount, fullSrc, "This image is not optimized",
+								this.printConsoleInformation(internalCount, fullSrc, optStatus,
 										disStatus, widthText, heightText, imgSize, imgName);
 
 								// SQL Insert information into table
@@ -275,6 +273,7 @@ public class ImageCheck
 		System.out.println();
 	}
 	
+	// Set String Data for SQL entry
 	public void setStringData(String currentPageUrl, String imgName, String optStatus, String currentImageWidth, String currentImageHeight, int imgSize, String weightStatus, String currentImageUrl)
 	{
 		stringData = "'" + currentPageUrl + "' , '" + imgName + "' , '"+ optStatus+"', "
