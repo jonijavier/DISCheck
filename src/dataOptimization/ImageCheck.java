@@ -9,14 +9,8 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
 
-import java.io.FileWriter;
 import java.net.URL;
 import java.net.URLConnection;
-
-import org.jdom.Attribute;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.output.XMLOutputter;
 
 public class ImageCheck
 {
@@ -24,7 +18,6 @@ public class ImageCheck
 	private static int internalCount;
 	private static URLConnection urlConnection;
 	private int imgSize = 0;
-	private boolean imgNull = false;
 
 	private String fullSrc = "";
 	private String imgName = "";
@@ -32,12 +25,18 @@ public class ImageCheck
 	private int endIndex = 0;
 
 	// For SQL Entry
-	private String columnNames = "pageurl, imagename, optimizationcheck, width, height, weight, weightstatus, imageurl";
+	private String columnNames = "pageurl, imagename, optimizationcheck, width, height, weight, weightstatus, imageurl"; // These are the column names for ALL image repositories for each table made
 	private String currentPageUrl = "";
 	private String currentImageWidth = "";
 	private String currentImageHeight = "";
 	private String weightStatus = "no weight status";
 	private String currentImageUrl = "";
+	private String disStatus = "init dis status";
+	private String widthText = "no width";
+	private String heightText = "no height";
+	private String imageExclusionCriteria = "imageurl = '' AND imagename = ''";
+	private String optStatus = "init opt status";
+	private String stringData = "init string data";
 
 	// Create a new table for the URL and store all checked Images in it.
 	public ImageCheck(int count, WebDriver driver, String newTableName) throws Exception
@@ -57,35 +56,39 @@ public class ImageCheck
 
 			for (WebElement imgElement : imagesList)
 			{
+				// iterates the internal image count
 				internalCount++;
 
 				// Checks for the image's HttpStatus
-				if (imgElement != null)
-				{
-					verifyimageActive(imgElement);
-					imgNull = true;
-				}
+				verifyimageActive(imgElement);
+				
+				// Gets the image file size aka "weight"
+				urlConnection = new URL(imgElement.getAttribute("src")).openConnection();
+				imgSize = urlConnection.getContentLength();
 
-				if (imgNull == true)
+				// Set Strings and Integers for image attributes needed for storage and console print
+				currentPageUrl = driver.getCurrentUrl().toString();
+				currentImageWidth = imgElement.getAttribute("width");
+				currentImageHeight = imgElement.getAttribute("height");
+				weightStatus = "no weight status";
+				currentImageUrl = imgElement.getAttribute("src");
+				disStatus = imgElement.getAttribute("data-is-responsive-loaded");
+				widthText = imgElement.getAttribute("width");
+				heightText = imgElement.getAttribute("height");
+				imageExclusionCriteria = "imageurl = '" + currentImageUrl + "' AND imagename = '"
+						+ imgName + "'";
+
+
+				// If weight is greater than 150kb then tag as Image Weight Fail
+				if (imgSize > 150000)
 				{
-					try
-					{
-						// Gets the image file size aka "weight"
-						urlConnection = new URL(imgElement.getAttribute("src")).openConnection();
-						imgSize = urlConnection.getContentLength();
-						imgNull = false;
-					}
-					catch (Exception e)
-					{
-						System.out.println("Exception found: ImageCheck, ImageCheck(2nd) - Exception: ");
-						e.printStackTrace();
-					}
+					weightStatus = "Image Weight Fail";
 				}
 				else
 				{
-					imgNull = false;
+					weightStatus = "Image Weight Pass";
 				}
-
+				
 				// Checks if the image is optimized
 				if (imgElement.getAttribute("data-is-responsive-loaded") == null)
 				{
@@ -93,164 +96,88 @@ public class ImageCheck
 					{
 						if (imgElement.getAttribute("src").contains("?sw="))
 						{
-							// Set Strings and Integers
-							currentPageUrl = driver.getCurrentUrl().toString();
-							currentImageWidth = imgElement.getAttribute("width");
-							currentImageHeight = imgElement.getAttribute("height");
-							weightStatus = "no weight status";
-							currentImageUrl = imgElement.getAttribute("src");
-
-							// If weight is greater than 150kb then tag as Image Weight Fail
-							if (imgSize > 150000)
-							{
-								weightStatus = "Image Weight Fail";
-							}
-							else
-							{
-								weightStatus = "Image Weight Pass";
-							}
-
 							// get Image Name
 							fullSrc = imgElement.getAttribute("src");
 							startIndex = fullSrc.lastIndexOf("/") + 1;
 							endIndex = fullSrc.indexOf("?");
 							imgName = fullSrc.substring(startIndex, endIndex);
+							
+							// Setting optimization status
+							optStatus = "optimized";
 
-							// Console print
-							System.out.println();
-							System.out.println(internalCount + "- SRC: " + imgElement.getAttribute("src"));
-							System.out.println(internalCount + "- This image is optimized.");
-							System.out.println(
-									internalCount + "-DIS: " + imgElement.getAttribute("data-is-responsive-loaded"));
-							System.out.println(internalCount + "- Width:" + imgElement.getAttribute("width")
-									+ ", Height: " + imgElement.getAttribute("height"));
-							System.out.println(internalCount + "- bytes: " + Integer.toString(imgSize));
-							System.out.println(internalCount + "- imageName: " + imgName);
+							// This replaces the console print information section
+							this.printConsoleInformation(internalCount, fullSrc, optStatus, disStatus,
+									widthText, heightText, imgSize, imgName);
 
-							// SQL Insert
-							String stringData = "'" + currentPageUrl + "' , '" + imgName + "' , 'optimized', "
-									+ currentImageWidth + ", " + currentImageHeight + ", " + imgSize + ", '"
-									+ weightStatus + "', '" + currentImageUrl + "'";
-							String exclusionCriteria = "imageurl = '" + currentImageUrl + "' AND imagename = '"
-									+ imgName + "'";
+							// SQL Insert information into table
+							this.setStringData(currentPageUrl, imgName, optStatus, currentImageWidth, currentImageHeight, imgSize, weightStatus, currentImageUrl);
 							Database.insertMultipleRecordsIntoTable(newTableName, columnNames, stringData,
-									exclusionCriteria);
-
+									imageExclusionCriteria);
 						}
 						else
 						{
-							// Set Strings and Integers
-							currentPageUrl = driver.getCurrentUrl().toString();
-							currentImageWidth = imgElement.getAttribute("width");
-							currentImageHeight = imgElement.getAttribute("height");
-							weightStatus = "no weight status";
-							currentImageUrl = imgElement.getAttribute("src");
-
-							// If weight is greater than 150kb then tag as Image Weight Fail
-							if (imgSize > 150000)
-							{
-								weightStatus = "Image Weight Fail";
-							}
-							else
-							{
-								weightStatus = "Image Weight Pass";
-							}
-
 							// get Image Name
 							fullSrc = imgElement.getAttribute("src");
 							startIndex = fullSrc.lastIndexOf("/") + 1;
 
+							// Setting optimization status
+							optStatus = "not optimized";
+							
 							if (fullSrc.contains(".jpg"))
 							{
 								endIndex = fullSrc.lastIndexOf(".jpg");
 								imgName = fullSrc.substring(startIndex, endIndex) + ".jpg";
 
-								// Console print
-								System.out.println();
-								System.out.println(internalCount + "- SRC: " + imgElement.getAttribute("src"));
-								System.out.println(internalCount + "- This image is not optimized.");
-								System.out.println(internalCount + "- DIS: "
-										+ imgElement.getAttribute("data-is-responsive-loaded"));
-								System.out.println(internalCount + "- bytes: " + Integer.toString(imgSize));
-								System.out.println(internalCount + "- imageName: " + imgName);
+								// This replaces the console print information section
+								this.printConsoleInformation(internalCount, fullSrc, optStatus,
+										disStatus, widthText, heightText, imgSize, imgName);
 
-								// SQL Insert
-								String stringData = "'" + currentPageUrl + "' , '" + imgName + "' , 'not optimized', "
-										+ currentImageWidth + ", " + currentImageHeight + ", " + imgSize + ", '"
-										+ weightStatus + "', '" + currentImageUrl + "'";
-								String exclusionCriteria = "imageurl = '" + currentImageUrl + "' AND imagename = '"
-										+ imgName + "'";
+								// SQL Insert information into table
+								this.setStringData(currentPageUrl, imgName, optStatus, currentImageWidth, currentImageHeight, imgSize, weightStatus, currentImageUrl);
 								Database.insertMultipleRecordsIntoTable(newTableName, columnNames, stringData,
-										exclusionCriteria);
+										imageExclusionCriteria);
 							}
 							else if (fullSrc.contains(".png"))
 							{
 								endIndex = fullSrc.lastIndexOf(".png");
 								imgName = fullSrc.substring(startIndex, endIndex) + ".png";
 
-								// Console print
-								System.out.println();
-								System.out.println(internalCount + "- SRC: " + imgElement.getAttribute("src"));
-								System.out.println(internalCount + "- This image is not optimized.");
-								System.out.println(internalCount + "- DIS: "
-										+ imgElement.getAttribute("data-is-responsive-loaded"));
-								System.out.println(internalCount + "- bytes: " + Integer.toString(imgSize));
-								System.out.println(internalCount + "- imageName: " + imgName);
+								// This replaces the console print information section
+								this.printConsoleInformation(internalCount, fullSrc, "This image is not optimized",
+										disStatus, widthText, heightText, imgSize, imgName);
 
-								// SQL Insert
-								String stringData = "'" + currentPageUrl + "' , '" + imgName + "' , 'not optimized', "
-										+ currentImageWidth + ", " + currentImageHeight + ", " + imgSize + ", '"
-										+ weightStatus + "', '" + currentImageUrl + "'";
-								String exclusionCriteria = "imageurl = '" + currentImageUrl + "' AND imagename = '"
-										+ imgName + "'";
+								// SQL Insert information into table
+								this.setStringData(currentPageUrl, imgName, optStatus, currentImageWidth, currentImageHeight, imgSize, weightStatus, currentImageUrl);
 								Database.insertMultipleRecordsIntoTable(newTableName, columnNames, stringData,
-										exclusionCriteria);
+										imageExclusionCriteria);
 							}
 							else if (fullSrc.contains(".gif"))
 							{
 								endIndex = fullSrc.lastIndexOf(".gif");
 								imgName = fullSrc.substring(startIndex, endIndex) + ".gif";
 
-								// Console print
-								System.out.println();
-								System.out.println(internalCount + "- SRC: " + imgElement.getAttribute("src"));
-								System.out.println(internalCount + "- This image is not optimized.");
-								System.out.println(internalCount + "- DIS: "
-										+ imgElement.getAttribute("data-is-responsive-loaded"));
-								System.out.println(internalCount + "- bytes: " + Integer.toString(imgSize));
-								System.out.println(internalCount + "- imageName: " + imgName);
+								// This replaces the console print information section
+								this.printConsoleInformation(internalCount, fullSrc, "This image is not optimized",
+										disStatus, widthText, heightText, imgSize, imgName);
 
-								// SQL Insert
-								String stringData = "'" + currentPageUrl + "' , '" + imgName + "' , 'not optimized', "
-										+ currentImageWidth + ", " + currentImageHeight + ", " + imgSize + ", '"
-										+ weightStatus + "', '" + currentImageUrl + "'";
-								String exclusionCriteria = "imageurl = '" + currentImageUrl + "' AND imagename = '"
-										+ imgName + "'";
+								// SQL Insert information into table
+								this.setStringData(currentPageUrl, imgName, optStatus, currentImageWidth, currentImageHeight, imgSize, weightStatus, currentImageUrl);
 								Database.insertMultipleRecordsIntoTable(newTableName, columnNames, stringData,
-										exclusionCriteria);
+										imageExclusionCriteria);
 							}
 							else
 							{
 								// do nothing
 								imgName = "No Image Name";
 
-								// Console print
-								System.out.println();
-								System.out.println(internalCount + "- SRC: " + imgElement.getAttribute("src"));
-								System.out.println(internalCount + "- This image is not optimized.");
-								System.out.println(internalCount + "- DIS: "
-										+ imgElement.getAttribute("data-is-responsive-loaded"));
-								System.out.println(internalCount + "- bytes: " + Integer.toString(imgSize));
-								System.out.println(internalCount + "- imageName: " + imgName);
+								// This replaces the console print information section
+								this.printConsoleInformation(internalCount, fullSrc, "This image is not optimized",
+										disStatus, widthText, heightText, imgSize, imgName);
 
-								// SQL Insert
-								String stringData = "'" + currentPageUrl + "' , '" + imgName + "' , 'not optimized', "
-										+ currentImageWidth + ", " + currentImageHeight + ", " + imgSize + ", '"
-										+ weightStatus + "', '" + currentImageUrl + "'";
-								String exclusionCriteria = "imageurl = '" + currentImageUrl + "' AND imagename = '"
-										+ imgName + "'";
+								// SQL Insert information into table
+								this.setStringData(currentPageUrl, imgName, optStatus, currentImageWidth, currentImageHeight, imgSize, weightStatus, currentImageUrl);
 								Database.insertMultipleRecordsIntoTable(newTableName, columnNames, stringData,
-										exclusionCriteria);
+										imageExclusionCriteria);
 							}
 						}
 					}
@@ -264,48 +191,20 @@ public class ImageCheck
 				{
 					try
 					{
-						// Set Strings and Integers
-						currentPageUrl = driver.getCurrentUrl().toString();
-						currentImageWidth = imgElement.getAttribute("width");
-						currentImageHeight = imgElement.getAttribute("height");
-						weightStatus = "no weight status";
-						currentImageUrl = imgElement.getAttribute("src");
-
-						// If weight is greater than 150kb then tag as Image Weight Fail
-						if (imgSize > 150000)
-						{
-							weightStatus = "Image Weight Fail";
-						}
-						else
-						{
-							weightStatus = "Image Weight Pass";
-						}
-
 						// get Image Name
 						fullSrc = imgElement.getAttribute("src");
 						startIndex = fullSrc.lastIndexOf("/") + 1;
 						endIndex = fullSrc.indexOf("?");
 						imgName = fullSrc.substring(startIndex, endIndex);
 
-						// Console print
-						System.out.println();
-						System.out.println(internalCount + "- SRC: " + imgElement.getAttribute("src"));
-						System.out.println(internalCount + "- This image is optimized.");
-						System.out.println(
-								internalCount + "- DIS: " + imgElement.getAttribute("data-is-responsive-loaded"));
-						System.out.println(internalCount + "- Width:" + imgElement.getAttribute("width") + ", Height: "
-								+ imgElement.getAttribute("height"));
-						System.out.println(internalCount + "- bytes: " + Integer.toString(imgSize));
-						System.out.println(internalCount + "- imageName: " + imgName);
+						// This replaces the console print information section
+						this.printConsoleInformation(internalCount, fullSrc, "This image is optimized", disStatus,
+								widthText, heightText, imgSize, imgName);
 
-						// SQL Insert
-						String stringData = "'" + currentPageUrl + "' , '" + imgName + "' , 'optimized', "
-								+ currentImageWidth + ", " + currentImageHeight + ", " + imgSize + ", '" + weightStatus
-								+ "', '" + currentImageUrl + "'";
-						String exclusionCriteria = "imageurl = '" + currentImageUrl + "' AND imagename = '" + imgName
-								+ "'";
+						// SQL Insert information into table
+						this.setStringData(currentPageUrl, imgName, optStatus, currentImageWidth, currentImageHeight, imgSize, weightStatus, currentImageUrl);
 						Database.insertMultipleRecordsIntoTable(newTableName, columnNames, stringData,
-								exclusionCriteria);
+								imageExclusionCriteria);
 					}
 					catch (Exception e)
 					{
@@ -360,5 +259,26 @@ public class ImageCheck
 			System.out.println("Exception found: ImageCheck, verifyimageActive - Exception: ");
 			e.printStackTrace();
 		}
+	}
+
+	// Console Print Information
+	public void printConsoleInformation(int internalCount, String srcText, String optStatus, String disStatus,
+			String widthText, String heightText, int imgSize, String imgName)
+	{
+		System.out.println();
+		System.out.println(internalCount + "- SRC: " + srcText);
+		System.out.println(internalCount + "- This image is " + optStatus);
+		System.out.println(internalCount + "- DIS: " + disStatus);
+		System.out.println(internalCount + "- Width:" + widthText + ", Height: " + heightText);
+		System.out.println(internalCount + "- bytes: " + Integer.toString(imgSize));
+		System.out.println(internalCount + "- imageName: " + imgName);
+		System.out.println();
+	}
+	
+	public void setStringData(String currentPageUrl, String imgName, String optStatus, String currentImageWidth, String currentImageHeight, int imgSize, String weightStatus, String currentImageUrl)
+	{
+		stringData = "'" + currentPageUrl + "' , '" + imgName + "' , '"+ optStatus+"', "
+				+ currentImageWidth + ", " + currentImageHeight + ", " + imgSize + ", '"
+				+ weightStatus + "', '" + currentImageUrl + "'";
 	}
 }
