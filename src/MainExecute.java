@@ -22,15 +22,15 @@ public class MainExecute
 			"contact", "GiftRegistry", "ProductFinder-Quiz", "csort", "Review", "ProductFinder-BeautyConsultation",
 			"loreal", "search?", "Lancome-RefinementsShow?", "pdf", "register", "customer-service", "sitemap" };
 
-	// Values for Desktop Testing: staticPlatform = Windows 10, Windows 8, Windows 7, Windows XP, OS X [version_no. e.g. 10.11. OS X 10.11] 
+	// Only the following values are allowed: firefox, chrome, chromeMobile, safari
+	private static String setBrowserString = "firefox";
+	
+	// Values for Desktop Testing (if setBrowserString = chrome or firefox): staticPlatform = Windows 10, Windows 8, Windows 7, Windows XP, OS X [version_no. e.g. 10.11. OS X 10.11] 
 	private static String staticPlatform = "Windows 10";
 	private static String staticBrowserVersion = "20.0";
 	private static String staticScreenResolution = "1920x1080";
 
-	// Only the following values are allowed: firefox, chrome, chromeMobile, safari
-	private static String setBrowserString = "firefox";
-
-	// Values for Mobile Emulator Testing
+	// Values for Mobile Emulator Testing (if setBrowserString = chromeMobile)
 	private static String staticDeviceName = "Google Nexus 5";
 
 	// Set Chrome Driver Location
