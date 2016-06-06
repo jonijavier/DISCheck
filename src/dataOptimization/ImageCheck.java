@@ -104,15 +104,6 @@ public class ImageCheck
 							
 							// Setting optimization status
 							optStatus = "optimized";
-
-							// This replaces the console print information section
-							this.printConsoleInformation(internalCount, fullSrc, optStatus, disStatus,
-									widthText, heightText, imgSize, imgName);
-
-							// SQL Insert information into table
-							this.setStringData(currentPageUrl, imgName, optStatus, currentImageWidth, currentImageHeight, imgSize, weightStatus, currentImageUrl);
-							Database.insertMultipleRecordsIntoTable(newTableName, columnNames, stringData,
-									imageExclusionCriteria);
 						}
 						else
 						{
@@ -127,57 +118,31 @@ public class ImageCheck
 							{
 								endIndex = fullSrc.lastIndexOf(".jpg");
 								imgName = fullSrc.substring(startIndex, endIndex) + ".jpg";
-
-								// This replaces the console print information section
-								this.printConsoleInformation(internalCount, fullSrc, optStatus,
-										disStatus, widthText, heightText, imgSize, imgName);
-
-								// SQL Insert information into table
-								this.setStringData(currentPageUrl, imgName, optStatus, currentImageWidth, currentImageHeight, imgSize, weightStatus, currentImageUrl);
-								Database.insertMultipleRecordsIntoTable(newTableName, columnNames, stringData,
-										imageExclusionCriteria);
 							}
 							else if (fullSrc.contains(".png"))
 							{
 								endIndex = fullSrc.lastIndexOf(".png");
 								imgName = fullSrc.substring(startIndex, endIndex) + ".png";
-
-								// This replaces the console print information section
-								this.printConsoleInformation(internalCount, fullSrc, optStatus,
-										disStatus, widthText, heightText, imgSize, imgName);
-
-								// SQL Insert information into table
-								this.setStringData(currentPageUrl, imgName, optStatus, currentImageWidth, currentImageHeight, imgSize, weightStatus, currentImageUrl);
-								Database.insertMultipleRecordsIntoTable(newTableName, columnNames, stringData,
-										imageExclusionCriteria);
 							}
 							else if (fullSrc.contains(".gif"))
 							{
 								endIndex = fullSrc.lastIndexOf(".gif");
 								imgName = fullSrc.substring(startIndex, endIndex) + ".gif";
-
-								// This replaces the console print information section
-								this.printConsoleInformation(internalCount, fullSrc, optStatus,
-										disStatus, widthText, heightText, imgSize, imgName);
-								// SQL Insert information into table
-								this.setStringData(currentPageUrl, imgName, optStatus, currentImageWidth, currentImageHeight, imgSize, weightStatus, currentImageUrl);
-								Database.insertMultipleRecordsIntoTable(newTableName, columnNames, stringData,
-										imageExclusionCriteria);
 							}
 							else
 							{
 								imgName = "No Image Name";
-
-								// This replaces the console print information section
-								this.printConsoleInformation(internalCount, fullSrc, optStatus,
-										disStatus, widthText, heightText, imgSize, imgName);
-
-								// SQL Insert information into table
-								this.setStringData(currentPageUrl, imgName, optStatus, currentImageWidth, currentImageHeight, imgSize, weightStatus, currentImageUrl);
-								Database.insertMultipleRecordsIntoTable(newTableName, columnNames, stringData,
-										imageExclusionCriteria);
 							}
 						}
+						
+						// This replaces the console print information section
+						this.printConsoleInformation(internalCount, fullSrc, optStatus, disStatus,
+								widthText, heightText, imgSize, imgName);
+
+						// SQL Insert information into table
+						this.setStringData(currentPageUrl, imgName, optStatus, currentImageWidth, currentImageHeight, imgSize, weightStatus, currentImageUrl);
+						Database.insertMultipleRecordsIntoTable(newTableName, columnNames, stringData,
+								imageExclusionCriteria);
 					}
 					catch (Exception e)
 					{
@@ -268,11 +233,11 @@ public class ImageCheck
 	{
 		System.out.println();
 		System.out.println(internalCount + "- SRC: " + srcText);
-		System.out.println(internalCount + "- This image is " + optStatus);
+		System.out.println(internalCount + "- This image is: " + optStatus);
 		System.out.println(internalCount + "- DIS: " + disStatus);
 		System.out.println(internalCount + "- Width:" + widthText + ", Height: " + heightText);
-		System.out.println(internalCount + "- bytes: " + Integer.toString(imgSize));
-		System.out.println(internalCount + "- imageName: " + imgName);
+		System.out.println(internalCount + "- Bytes: " + Integer.toString(imgSize));
+		System.out.println(internalCount + "- Image Name: " + imgName);
 		System.out.println();
 	}
 	
