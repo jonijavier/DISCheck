@@ -77,6 +77,8 @@ public class MainExecute
 
 			// For getting all the links in all of the available urls in the urlrepository
 			//Database.selectUniqueUrlAndGetLinks(exclusionArray);
+			
+			// Doing image check starting from a specific URL in the database. 
 			Database.selectUrlAndRunImageCheck(urlTableName, urlColumnName, startingUrl);
 
 			MainPageCheck.tearDown();
