@@ -466,6 +466,8 @@ public class Database
 			internalDbConnection = getDBConnection();
 			internalStatement = internalDbConnection.createStatement();
 
+			System.out.println("STARTING selectUniqueUrlAndGetLinks...");
+			System.out.println();
 			System.out.println(selectRecordsFromTableSQL);
 
 			// Execute Select SQL Statement
