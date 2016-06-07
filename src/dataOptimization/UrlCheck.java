@@ -19,7 +19,7 @@ public class UrlCheck
 	{
 		try
 		{
-			System.out.println("Starting Image Check for " + baseUrl);
+			System.out.println("Starting URL Check for " + baseUrl);
 			
 			// loops to segregate the non-url from the urls
 			for (WebElement aHrefElement : urlList)
