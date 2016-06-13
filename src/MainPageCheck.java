@@ -40,6 +40,7 @@ public class MainPageCheck
 	private static String staticScreenResolution = StoreVariables.getGlobalStaticScreenResolution();
 	private static String setBrowserString = StoreVariables.getGlobalSetBrowserString();
 	private static String staticDeviceName = StoreVariables.getGlobalStaticDeviceName();
+	private static String setDevice = StoreVariables.getGlobalSetDevice();
 
 	// Set-up: Chrome Driver Location
 	private static String setChromeDriverLocation = StoreVariables.getGlobalChromeDriverLocation();
@@ -109,7 +110,7 @@ public class MainPageCheck
 			else 
 			{
 				// Default is to run main url check
-				mainUrlCheck = new UrlCheck(urlList, exclusionArray, driver, baseUrl);	
+				mainUrlCheck = new UrlCheck(urlList, exclusionArray, driver, baseUrl);
 			}
 		}
 		catch (UnreachableBrowserException ube)
