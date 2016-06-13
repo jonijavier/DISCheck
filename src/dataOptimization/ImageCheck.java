@@ -79,14 +79,41 @@ public class ImageCheck
 						+ imgName + "'";
 
 
-				// If weight is greater than 150kb then tag as Image Weight Fail
-				if (imgSize > 150000)
+				if (StoreVariables.globalSetDevice.equals("desktop"))
 				{
-					weightStatus = "Image Weight Fail";
+					// If on desktop and weight is greater than 150kb then tag as Image Weight Fail
+					if (imgSize > 150000)
+					{
+						weightStatus = "Desktop Image Weight Fail";
+					}
+					else
+					{
+						weightStatus = "Desktop Image Weight Pass";
+					}
+				}
+				else if (StoreVariables.globalSetDevice.equals("mobile"))
+				{
+					// If on mobile and weight is greater than 50kb then tag as Image Weight Fail
+					if (imgSize > 50000)
+					{
+						weightStatus = "Mobile Image Weight Fail";
+					}
+					else
+					{
+						weightStatus = "Mobile Image Weight Pass";
+					}
 				}
 				else
 				{
-					weightStatus = "Image Weight Pass";
+					// Default Image Weight is to check against desktop restrictions
+					if (imgSize > 150000)
+					{
+						weightStatus = "Image Weight Fail (Pls take note)";
+					}
+					else
+					{
+						weightStatus = "Image Weight Pass (Pls take note)";
+					}
 				}
 				
 				// Checks if the image is optimized

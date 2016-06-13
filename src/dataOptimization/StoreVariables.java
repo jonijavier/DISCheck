@@ -16,6 +16,7 @@ public class StoreVariables
 	public static String globalSetBrowserString;
 	public static String globalStaticDeviceName;
 	public static String globalChromeDriverLocation;
+	public static String globalSetDevice = "desktop";
 
 	// Database Set-up
 	public static String globalDbName;
@@ -62,12 +63,18 @@ public class StoreVariables
 		globalStaticDeviceName = staticDeviceName;
 		globalChromeDriverLocation = chromeDriverLocation;
 		
+		if (globalSetBrowserString.equals("chromeMobile"))
+		{
+			globalSetDevice = "mobile";
+		}
+		
 		System.out.println("Change successfully made for globalStaticPlatform: " + globalStaticPlatform);
 		System.out.println("Change successfully made for globalStaticBrowserVersion: " + globalStaticBrowserVersion);
 		System.out.println("Change successfully made for globalStaticScreenResolution: " + globalStaticScreenResolution);
 		System.out.println("Change successfully made for globalSetBrowserString: " + globalSetBrowserString);
 		System.out.println("Change successfully made for globalStaticDeviceName: " + globalStaticDeviceName);
 		System.out.println("Change successfully made for globalChromeDriverLocation: " + globalChromeDriverLocation);
+		System.out.println("Change successfulle made for globalSetDevice: " + globalSetDevice);
 	}
 
 	// Set Global Variables for Database Set-up
@@ -290,5 +297,10 @@ public class StoreVariables
 	public static String getGlobalTempTableName()
 	{
 		return globalTempTableName;
+	}
+	
+	public static String getGlobalSetDevice()
+	{
+		return globalSetDevice;
 	}
 }

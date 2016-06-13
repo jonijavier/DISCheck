@@ -60,7 +60,7 @@ public class MainExecute
 	private static String runMainUrlCheck = "imagecheckonly";
 
 	// Indicate URL to start image check from
-	private static String startingUrl = "";
+	private static String startingUrl = "http://www.kiehls.co.uk/on/demandware.store/Sites-kiehls-uk-Site/en_GB/Page-Show?cid=cookie-policy";
 
 	/**
 	 * IMPORTANT NOTE: Please change ONLY the variables ABOVE THIS

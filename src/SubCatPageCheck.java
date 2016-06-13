@@ -27,6 +27,9 @@ import java.util.Date;
 public class SubCatPageCheck
 {
 	/**
+	 * ****DEPRECATED CLASS
+	 * 
+	 * 
 	 * Introduction: This code will allow the user to set an array of URLs which
 	 * the test will run through.
 	 * 
