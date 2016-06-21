@@ -50,18 +50,18 @@ public class MainExecute
 	private static String chromeDriverLocation = "C:/Users/User1/Downloads/chromedriver_win32/chromedriver.exe";
 
 	// Set Database Information
-	private static String dbName = "kiehlsuk";
+	private static String dbName = "kiehlsmobiledummy";
 	private static final String DB_DRIVER = "com.mysql.jdbc.Driver";
 	private static final String DB_CONNECTION = "jdbc:mysql://localhost:3306/" + dbName;
 	private static final String DB_USER = "root";
 	private static final String DB_PASSWORD = "";
 
 	// This will indicate if you want to do URL Check or Image Check on the Main URL indicated above (e.g. yourBaseUrl). Allowable Values = yes, skip, imagecheckonly, urlcheckonly
-	private static String runMainUrlCheck = "imagecheckonly";
+	private static String runMainUrlCheck = "yes";
 
 	// Indicate URL to start image check from
 	private static String startingUrl = "http://www.kiehls.co.uk/on/demandware.store/Sites-kiehls-uk-Site/en_GB/Page-Show?cid=cookie-policy";
-
+	
 	/**
 	 * IMPORTANT NOTE: Please change ONLY the variables ABOVE THIS
 	 */
@@ -90,7 +90,7 @@ public class MainExecute
 			//Database.selectUniqueUrlAndGetLinks(exclusionArray);
 
 			// Doing image check starting from a specific URL in the database. 
-			Database.selectUrlAndRunImageCheck(urlTableName, urlColumnName, startingUrl);
+			//Database.selectUrlAndRunImageCheck(urlTableName, urlColumnName, startingUrl);
 
 			MainPageCheck.tearDown();
 		}
